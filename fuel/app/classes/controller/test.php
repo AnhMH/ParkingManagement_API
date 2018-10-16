@@ -15,11 +15,7 @@ class Controller_Test extends \Controller_App {
      * @return  Response
      */
     public function action_index() {
-        $param = array();
-        $data = Model_Customer::get_list($param);
-        echo '<pre>';
-        print_r($data);
-        die();
+        echo \Lib\Util::encodePassword('123456', 'admin2');
     }
 
     /**

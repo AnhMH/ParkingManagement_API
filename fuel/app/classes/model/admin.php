@@ -15,17 +15,11 @@ class Model_Admin extends Model_Abstract {
     /** @var array $_properties field of table */
     protected static $_properties = array(
         'id',
-        'type',
+        'name',
         'account',
         'password',
-        'name',
-        'email',
-        'address',
-        'tel',
-        'avatar',
-        'website',
-        'facebook',
-        'description',
+        'type',
+        'gender',
         'created',
         'updated',
         'disable'
@@ -56,8 +50,8 @@ class Model_Admin extends Model_Abstract {
     {
         $login = array();
         $login = self::get_profile(array(
-            'email' => $param['email'],
-            'password' => \Lib\Util::encodePassword($param['password'], $param['email'])
+            'account' => $param['account'],
+            'password' => \Lib\Util::encodePassword($param['password'], $param['account'])
         ));
         
         if (!empty($login)) {

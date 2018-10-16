@@ -329,7 +329,7 @@ return array(
     'image_ext' =>  array('jpeg', 'jpg', 'gif', 'png'),
     
     'api_check_security' => true,
-    'api_secret_key' => 'chotreolethuy',
+    'api_secret_key' => 'parkingmanagement',
     'api_request_minute' => 10,// Minute
     'api_token_expire' => time() + 30 * 24 * 60 * 60, // 30 days
     'register_token_expire' => time() + 60 * 60, // 1 hour
