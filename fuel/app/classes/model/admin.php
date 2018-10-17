@@ -51,7 +51,7 @@ class Model_Admin extends Model_Abstract {
         $login = array();
         $login = self::get_profile(array(
             'account' => $param['account'],
-            'password' => \Lib\Util::encodePassword($param['password'], $param['account'])
+            'password' => $param['password']
         ));
         
         if (!empty($login)) {
@@ -89,8 +89,8 @@ class Model_Admin extends Model_Abstract {
         if (!empty($param['admin_id'])) {
             $query->where(self::$_table_name.'.id', $param['admin_id']);
         }
-        if (!empty($param['email'])) {
-            $query->where(self::$_table_name.'.email', $param['email']);
+        if (!empty($param['account'])) {
+            $query->where(self::$_table_name.'.account', $param['account']);
         }
         if (!empty($param['password'])) {
             $query->where(self::$_table_name.'.password', $param['password']);
@@ -219,9 +219,12 @@ class Model_Admin extends Model_Abstract {
     public static function get_list($param) {
         // Query
         $query = DB::select(
-                        self::$_table_name . '.*'
+                        self::$_table_name . '.*',
+                        array('admin_types.name', 'type_name')
                 )
                 ->from(self::$_table_name)
+                ->join('admin_types', 'LEFT')
+                ->on(self::$_table_name.'.type', '=', 'admin_types.id')
         ;
 
         // Filter
@@ -259,5 +262,105 @@ class Model_Admin extends Model_Abstract {
             'total' => $total,
             'data' => $data
         );
+    }
+    
+    /**
+     * Add update info
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return int|bool User ID or false if error
+     */
+    public static function add_update($param)
+    {
+        // Init
+        $id = !empty($param['id']) ? $param['id'] : 0;
+        $self = array();
+        $new = false;
+        
+        // Check code
+        if (!empty($param['account'])) {
+            $check = self::find('first', array(
+                'where' => array(
+                    'name' => $param['account'],
+                    array('id', '!=', $id)
+                )
+            ));
+            if (!empty($check)) {
+                self::errorOther(self::ERROR_CODE_OTHER_1, 'account', 'Tài khoản đã tồn tại, vui lòng chọn tên khác.');
+                return false;
+            }
+        }
+        
+        
+        // Check if exist User
+        if (!empty($id)) {
+            $self = self::find($id);
+            if (empty($self)) {
+                self::errorNotExist('admin_id');
+                return false;
+            }
+        } else {
+            $self = new self;
+            $new = true;
+        }
+        
+        // Set data
+        if (!empty($param['name'])) {
+            $self->set('name', $param['name']);
+        }
+        if (!empty($param['account'])) {
+            $self->set('account', $param['account']);
+        }
+        if (!empty($param['pass'])) {
+            $self->set('password', $param['pass']);
+        }
+        if (!empty($param['type'])) {
+            $self->set('type', $param['type']);
+        }
+        if (!empty($param['gender'])) {
+            $self->set('gender', $param['gender']);
+        }
+        
+        // Save data
+        if ($self->save()) {
+            if (empty($self->id)) {
+                $self->id = self::cached_object($self)->_original['id'];
+            }
+            return $self->id;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Get detail
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return array
+     */
+    public static function get_detail($param)
+    {
+        $data = array();
+        
+        $data = self::find($param['id']);
+        
+        return $data;
+    }
+    
+    /**
+     * Disable
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return Int|bool
+     */
+    public static function disable($param)
+    {
+        $table = self::$_table_name;
+        $cond = "id IN ({$param['id']})";
+        $sql = "DELETE FROM {$table} WHERE {$cond}";
+        return DB::query($sql)->execute();
     }
 }

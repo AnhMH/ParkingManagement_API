@@ -34,4 +34,25 @@ class Controller_Admins extends \Controller_App {
     public function action_list() {
         return \Bus\Admins_List::getInstance()->execute();
     }
+    
+    /**
+     * Admin addupdate
+     */
+    public function action_addupdate() {
+        return \Bus\Admins_AddUpdate::getInstance()->execute();
+    }
+    
+    /**
+     * Admin detail
+     */
+    public function action_detail() {
+        return \Bus\Admins_Detail::getInstance()->execute();
+    }
+    
+    /**
+     * Admin disable
+     */
+    public function action_disable() {
+        return \Bus\Admins_Disable::getInstance()->execute();
+    }
 }
