@@ -27,4 +27,11 @@ class Controller_Admins extends \Controller_App {
     public function action_register() {
         return \Bus\Admins_Register::getInstance()->execute();
     }
+    
+    /**
+     * Admin list
+     */
+    public function action_list() {
+        return \Bus\Admins_List::getInstance()->execute();
+    }
 }

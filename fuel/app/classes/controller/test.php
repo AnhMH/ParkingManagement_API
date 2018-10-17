@@ -16,6 +16,10 @@ class Controller_Test extends \Controller_App {
      */
     public function action_index() {
         echo \Lib\Util::encodePassword('123456', 'admin2');
+
+        echo gethostname(); // may output e.g,: sandie
+        // Or, an option that also works before PHP 5.3
+        echo php_uname('n'); // may output e.g,: sandie
     }
 
     /**
@@ -30,5 +34,5 @@ class Controller_Test extends \Controller_App {
         $pass = $_GET['pw'];
         echo \Lib\Util::encodePassword($pass, $account);
     }
-    
+
 }
