@@ -108,12 +108,13 @@ class Model_Authenticate extends Model_Abstract {
         } else {
             $auth = new self($authenticate, false);
             $auth->set('expire_date', \Config::get('api_token_expire'));
-            $token = $authenticate['token'];
-            if ($authenticate['expire_date'] < $authenticate['systime']) {
+            if ($authenticate['expire_date'] < $authenticate['systime'] || !empty($param['update_token'])) {
                 \LogLib::info('Update new token', __METHOD__, $param);
                 $token = \Lib\Str::generate_token_for_api();
-                $auth->set('token', $token);
+            } else {
+                $token = $authenticate['token'];
             }
+            $auth->set('token', $token);
             if (!$auth->update()) {
                 \LogLib::warning('Can not update token', __METHOD__, $param);
             }
