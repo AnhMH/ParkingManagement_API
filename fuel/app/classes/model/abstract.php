@@ -27,6 +27,16 @@ class Model_Abstract extends Model {
     const ERROR_CODE_OTHER_3 = 1023;
     const ERROR_CODE_OTHER_4 = 1024;
     const ERROR_CODE_OTHER_5 = 1025;
+    
+    const LOG_TYPE_ADMIN_LOGIN = 1;
+    const LOG_TYPE_ADMIN_LOGOUT = 2;
+    const LOG_TYPE_ADMIN_UPDATE = 3;
+    const LOG_TYPE_ADMIN_CREATE = 4;
+    const LOG_TYPE_ADMIN_DELETE = 5;
+    
+    const LOG_TYPE_ADMIN_TYPE_UPDATE = 6;
+    const LOG_TYPE_ADMIN_TYPE_CREATE = 7;
+    const LOG_TYPE_ADMIN_TYPE_DELETE = 8;
 
     public static $slave_db = 'default';
 

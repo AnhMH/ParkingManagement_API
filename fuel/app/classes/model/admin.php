@@ -60,6 +60,13 @@ class Model_Admin extends Model_Abstract {
                     'user_id' => $login['id'],
                     'regist_type' => 'admin'
                 ));
+                $logParam = array(
+                    'detail' => 'Đăng nhập hệ thống',
+                    'admin_id' => $login['id'],
+                    'type' => static::LOG_TYPE_ADMIN_LOGIN,
+                    'login_time' => time()
+                );
+                Model_System_Log::add_update($logParam);
                 return $login;
             }
             static::errorOther(static::ERROR_CODE_OTHER_1, 'User is disabled');
@@ -67,6 +74,36 @@ class Model_Admin extends Model_Abstract {
         }
         static::errorOther(static::ERROR_CODE_AUTH_ERROR, 'Email/Password');
         return false;
+    }
+    
+    /**
+     * Logout Admin
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return array|bool Detail Admin or false if error
+     */
+    public static function logout($param)
+    {
+        $adminId = !empty($param['admin_id']) ? $param['admin_id'] : 0;
+        $logoutTime = time();
+        $lastLogin = Model_System_Log::find('last', array(
+            'where' => array(
+                'admin_id' => $adminId
+            )
+        ));
+        if (!empty($lastLogin)) {
+            $lastLogin->set('logout_time', $logoutTime);
+            $lastLogin->save();
+        }
+        $logParam = array(
+            'detail' => 'Đăng xuất hệ thống',
+            'admin_id' => $adminId,
+            'type' => static::LOG_TYPE_ADMIN_LOGOUT,
+            'logout_time' => $logoutTime
+        );
+        Model_System_Log::add_update($logParam);
+        return true;
     }
     
     /**

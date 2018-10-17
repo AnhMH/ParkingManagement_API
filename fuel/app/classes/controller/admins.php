@@ -15,6 +15,13 @@ class Controller_Admins extends \Controller_App {
     }
     
     /**
+     * Admin logout
+     */
+    public function action_logout() {
+        return \Bus\Admins_Logout::getInstance()->execute();
+    }
+    
+    /**
      * Admin update profile
      */
     public function action_updateprofile() {
