@@ -64,6 +64,9 @@ class Model_Card extends Model_Abstract {
         if (!empty($param['vehicle_id'])) {
             $query->where(self::$_table_name . '.vehicle_id', '=', $param['vehicle_id']);
         }
+        if (isset($param['disable'])) {
+            $query->where(self::$_table_name . '.disable', '=', $param['disable']);
+        }
 
         // Pagination
         if (!empty($param['page']) && $param['limit']) {
