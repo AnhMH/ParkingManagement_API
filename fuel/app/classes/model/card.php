@@ -49,9 +49,12 @@ class Model_Card extends Model_Abstract {
     public static function get_list($param) {
         // Query
         $query = DB::select(
-                        self::$_table_name . '.*'
+                        self::$_table_name . '.*',
+                        array('vehicles.name', 'vehicle_name')
                 )
                 ->from(self::$_table_name)
+                ->join('vehicles', 'LEFT')
+                ->on('vehicles.id', '=', self::$_table_name.'.vehicle_id')
         ;
 
         // Filter
