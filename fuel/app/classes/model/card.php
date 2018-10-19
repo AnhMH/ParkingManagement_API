@@ -18,7 +18,7 @@ class Model_Card extends Model_Abstract {
         'code',
         'stt',
         'vehicle_id',
-        'is_monthly_card',
+        'monthly_card_id',
         'created',
         'updated',
         'disable',

@@ -60,11 +60,14 @@ class Model_Monthly_Card extends Model_Abstract {
                         self::$_table_name . '.*',
                         array('cards.code', 'card_code'),
                         DB::expr("FROM_UNIXTIME(start_date, '%Y-%m-%d') as startdate"),
-                        DB::expr("FROM_UNIXTIME(end_date, '%Y-%m-%d') as enddate")
+                        DB::expr("FROM_UNIXTIME(end_date, '%Y-%m-%d') as enddate"),
+                        array('vehicles.name', 'vehicle_name')
                 )
                 ->from(self::$_table_name)
                 ->join('cards')
                 ->on('cards.id', '=', self::$_table_name.'.card_id')
+                ->join('vehicles', 'LEFT')
+                ->on('vehicles.id', '=', self::$_table_name.'.vehicle_id')
         ;
 
         // Filter
@@ -278,7 +281,29 @@ class Model_Monthly_Card extends Model_Abstract {
     {
         $data = array();
         
-        $data = self::find($param['id']);
+        $query = DB::select(
+                        self::$_table_name . '.id',
+                        self::$_table_name . '.card_id',
+                        self::$_table_name . '.customer_name',
+                        self::$_table_name . '.car_number',
+                        self::$_table_name . '.id_number',
+                        self::$_table_name . '.email',
+                        self::$_table_name . '.company',
+                        self::$_table_name . '.brand',
+                        self::$_table_name . '.address',
+                        self::$_table_name . '.parking_fee',
+                        self::$_table_name . '.vehicle_id',
+                        DB::expr("FROM_UNIXTIME(start_date, '%Y-%m-%d') as start_date"),
+                        DB::expr("FROM_UNIXTIME(end_date, '%Y-%m-%d') as end_date"),
+                        array('cards.code', 'card_code')
+                )
+                ->from(self::$_table_name)
+                ->join('cards')
+                ->on('cards.id', '=', self::$_table_name.'.card_id')
+                ->where(self::$_table_name.'.id', $param['id'])
+        ;
+        
+        $data = $query->execute()->offsetGet(0);
         
         return $data;
     }
