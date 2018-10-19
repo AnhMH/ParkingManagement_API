@@ -10,15 +10,23 @@ use Fuel\Core\DB;
  * @version 1.0
  * @author AnhMH
  */
-class Model_Card extends Model_Abstract {
+class Model_Monthly_Card extends Model_Abstract {
     
     /** @var array $_properties field of table */
     protected static $_properties = array(
         'id',
-        'code',
-        'stt',
+        'card_id',
+        'car_number',
+        'customer_name',
+        'id_number',
+        'email',
+        'company',
+        'address',
+        'brand',
+        'parking_fee',
         'vehicle_id',
-        'is_monthly_card',
+        'start_date',
+        'end_date',
         'created',
         'updated',
         'disable',
@@ -37,7 +45,7 @@ class Model_Card extends Model_Abstract {
     );
 
     /** @var array $_table_name name of table */
-    protected static $_table_name = 'cards';
+    protected static $_table_name = 'monthly_cards';
     
     /**
      * Get list
@@ -50,16 +58,18 @@ class Model_Card extends Model_Abstract {
         // Query
         $query = DB::select(
                         self::$_table_name . '.*',
-                        array('vehicles.name', 'vehicle_name')
+                        array('cards.code', 'card_code'),
+                        DB::expr("FROM_UNIXTIME(start_date, '%Y-%m-%d') as startdate"),
+                        DB::expr("FROM_UNIXTIME(end_date, '%Y-%m-%d') as enddate")
                 )
                 ->from(self::$_table_name)
-                ->join('vehicles', 'LEFT')
-                ->on('vehicles.id', '=', self::$_table_name.'.vehicle_id')
+                ->join('cards')
+                ->on('cards.id', '=', self::$_table_name.'.card_id')
         ;
 
         // Filter
         if (!empty($param['code'])) {
-            $query->where(self::$_table_name . '.code', 'LIKE', "%{$param['code']}%");
+            $query->where('cards.code', 'LIKE', "%{$param['code']}%");
         }
         if (!empty($param['stt'])) {
             $query->where(self::$_table_name . '.code', 'LIKE', "%{$param['stt']}%");
@@ -162,28 +172,16 @@ class Model_Card extends Model_Abstract {
         // Init
         $id = !empty($param['id']) ? $param['id'] : 0;
         $self = array();
+        $cardId = 0;
+        $adminId = !empty($param['admin_id']) ? $param['admin_id'] : 0;
+        $vehicleId = !empty($param['vehicle_id']) ? $param['vehicle_id'] : 0;
         $new = false;
-        
-        // Check code
-        if (!empty($param['code'])) {
-            $check = self::find('first', array(
-                'where' => array(
-                    'code' => $param['code'],
-                    array('id', '!=', $id)
-                )
-            ));
-            if (!empty($check)) {
-                self::errorOther(self::ERROR_CODE_OTHER_1, 'name', 'Mã thẻ đã tồn tại, vui lòng chọn thẻ khác.');
-                return false;
-            }
-        }
-        
         
         // Check if exist User
         if (!empty($id)) {
             $self = self::find($id);
             if (empty($self)) {
-                self::errorNotExist('card_id');
+                self::errorNotExist('monthly_card_id');
                 return false;
             }
         } else {
@@ -191,27 +189,77 @@ class Model_Card extends Model_Abstract {
             $new = true;
         }
         
+        // Check code
+        if (!empty($param['card_code'])) {
+            $card = Model_Card::find('first', array(
+                'where' => array(
+                    'code' => $param['card_code']
+                )
+            ));
+            if (!empty($card)) {
+                $cardId = $card['id'];
+            } else {
+                $cardId = Model_Card::add_update(array(
+                    'code' => $param['card_code'],
+                    'admin_id' => $adminId,
+                    'vehicle_id' => $vehicleId
+                ));
+            }
+        }
+        
         // Set data
-        if (!empty($param['code'])) {
-            $self->set('code', $param['code']);
+        if (!empty($cardId)) {
+            $self->set('card_id', $cardId);
         }
-        if (!empty($param['stt'])) {
-            $self->set('stt', $param['stt']);
+        if (!empty($param['car_number'])) {
+            $self->set('car_number', $param['car_number']);
         }
-        if (!empty($param['vehicle_id'])) {
-            $self->set('vehicle_id', $param['vehicle_id']);
+        if (!empty($param['customer_name'])) {
+            $self->set('customer_name', $param['customer_name']);
         }
-        if (isset($param['is_monthly_card'])) {
-            $self->set('is_monthly_card', $param['is_monthly_card']);
+        if (isset($param['id_number'])) {
+            $self->set('id_number', $param['id_number']);
         }
-        if (isset($param['admin_id'])) {
-            $self->set('admin_id', $param['admin_id']);
+        if (isset($param['email'])) {
+            $self->set('email', $param['email']);
+        }
+        if (isset($param['company'])) {
+            $self->set('company', $param['company']);
+        }
+        if (isset($param['address'])) {
+            $self->set('address', $param['address']);
+        }
+        if (isset($param['brand'])) {
+            $self->set('brand', $param['brand']);
+        }
+        if (isset($param['parking_fee'])) {
+            $self->set('parking_fee', $param['parking_fee']);
+        }
+        if (isset($param['start_date'])) {
+            $self->set('start_date', self::time_to_val($param['start_date']));
+        }
+        if (isset($param['end_date'])) {
+            $self->set('end_date', self::date_to_val($param['end_date']));
+        }
+        if (!empty($vehicleId)) {
+            $self->set('vehicle_id', $vehicleId);
+        }
+        if (!empty($adminId)) {
+            $self->set('admin_id', $adminId);
         }
         
         // Save data
         if ($self->save()) {
             if (empty($self->id)) {
                 $self->id = self::cached_object($self)->_original['id'];
+            }
+            if (empty($card)) {
+                $card = Model_Card::find($cardId);
+            }
+            if (!empty($card)) {
+                $card->set('monthly_card_id', $self->id);
+                $card->set('vehicle_id', $vehicleId);
+                $card->save();
             }
             return $self->id;
         }
@@ -305,7 +353,6 @@ class Model_Card extends Model_Abstract {
         }
         
         $data = json_decode($param['data'], true);
-        $adminId = !empty($param['admin_id']) ? $param['admin_id'] : 0;
         $results = array();
         foreach ($data as $val) {
             // Init
@@ -344,8 +391,7 @@ class Model_Card extends Model_Abstract {
                     $vehicleId = $vehicle['id'];
                 } else {
                     $vehicleId = Model_Vehicle::add_update(array(
-                        'name' => $vehicleName,
-                        'admin_id' => $adminId
+                        'name' => $vehicleName
                     ));
                 }
                 
@@ -364,8 +410,7 @@ class Model_Card extends Model_Abstract {
                     $tmp['card_id'] = self::add_update(array(
                         'code' => $code,
                         'stt' => $stt,
-                        'vehicle_id' => $vehicleId,
-                        'admin_id' => $adminId
+                        'vehicle_id' => $vehicleId
                     ));
                     $tmp['message'] = 'Tạo mới';
                 }
