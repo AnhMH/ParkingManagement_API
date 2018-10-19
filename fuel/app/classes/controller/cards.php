@@ -42,4 +42,11 @@ class Controller_Cards extends \Controller_App {
     public function action_disable() {
         return \Bus\Cards_Disable::getInstance()->execute();
     }
+    
+    /**
+     * Card import
+     */
+    public function action_import() {
+        return \Bus\Cards_Import::getInstance()->execute();
+    }
 }

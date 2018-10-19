@@ -291,4 +291,86 @@ class Model_Card extends Model_Abstract {
         $sql = "UPDATE {$table} SET disable = {$disable} WHERE {$cond}";
         return DB::query($sql)->execute();
     }
+    /*
+     * Import Excel
+     * @param array $param
+     * @return boolean|string
+     */
+    public static function import($param)
+    {
+        // Check valid file upload
+        if (empty($param['data'])) {
+            self::errorOther(static::ERROR_CODE_OTHER_1, 'data', 'Empty data');
+            return false;
+        }
+        
+        $data = json_decode($param['data'], true);
+        $results = array();
+        foreach ($data as $val) {
+            // Init
+            $error = false;
+            $code = !empty($val['code']) ? $val['code'] : '';
+            $stt = !empty($val['stt']) ? $val['stt'] : '';
+            $vehicleName = !empty(($val['vehicle_name'])) ? $val['vehicle_name'] : '';
+            $tmp = array(
+                'status' => 'OK',
+                'code' => $code,
+                'card_id' => '',
+                'message' => ''
+            );
+            
+            // Validation
+            if (empty($code)) {
+                $error = true;
+                $tmp['message'] = 'Mã thẻ rỗng';
+            }
+            if (!$error && empty($stt)) {
+                $error = true;
+                $tmp['message'] = 'STT rỗng';
+            }
+            if (!$error && empty($vehicleName)) {
+                $error = true;
+                $tmp['message'] = 'Loại xe rống';
+            }
+            if (!$error) {
+                $vehicleId = 0;
+                $vehicle = Model_Vehicle::find('first', array(
+                    'where' => array(
+                        'name' => $vehicleName
+                    )
+                ));
+                if (!empty($vehicle)) {
+                    $vehicleId = $vehicle['id'];
+                } else {
+                    $vehicleId = Model_Vehicle::add_update(array(
+                        'name' => $vehicleName
+                    ));
+                }
+                
+                $card = self::find('first', array(
+                    'where' => array(
+                        'code' => $code
+                    )
+                ));
+                if (!empty($card)) {
+                    $card->set('vehicle_id', $vehicleId);
+                    $card->set('stt', $stt);
+                    $card->save();
+                    $tmp['card_id'] = $card['id'];
+                    $tmp['message'] = 'Cập nhật';
+                } else {
+                    $tmp['card_id'] = self::add_update(array(
+                        'code' => $code,
+                        'stt' => $stt,
+                        'vehicle_id' => $vehicleId
+                    ));
+                    $tmp['message'] = 'Tạo mới';
+                }
+            }
+            $tmp['status'] = !empty($error) ? 'ERROR' : 'OK';
+            $results[] = $tmp;
+        }
+        
+        return $results;
+    }
 }
