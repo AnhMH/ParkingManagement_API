@@ -208,6 +208,8 @@ class Model_Monthly_Card extends Model_Abstract {
                     'vehicle_id' => $vehicleId
                 ));
             }
+        } elseif (!empty($param['card_id'])) {
+            $cardId = $param['card_id'];
         }
         
         // Set data
@@ -382,24 +384,37 @@ class Model_Monthly_Card extends Model_Abstract {
         foreach ($data as $val) {
             // Init
             $error = false;
-            $code = !empty($val['code']) ? $val['code'] : '';
-            $stt = !empty($val['stt']) ? $val['stt'] : '';
+            $stt = '';
+            $cardId = 0;
+            $cardCode = !empty($val['card_code']) ? $val['card_code'] : '';
+            $carNumber = !empty($val['car_number']) ? $val['car_number'] : '';
             $vehicleName = !empty(($val['vehicle_name'])) ? $val['vehicle_name'] : '';
+            $customerName = !empty($val['customer_name']) ? $val['customer_name'] : '';
+            $idNumber = !empty($val['id_number']) ? $val['id_number'] : '';
+            $email = !empty($val['email']) ? $val['email'] : '';
+            $company = !empty($val['company']) ? $val['company'] : '';
+            $address = !empty($val['address']) ? $val['address'] : '';
+            $brand = !empty($val['brand']) ? $val['brand'] : '';
+            $parkingFee = !empty($val['parking_fee']) ? $val['parking_fee'] : '';
+            $startDate = !empty($val['start_date']) ? self::time_to_val($val['start_date']) : '';
+            $endDate = !empty($val['end_date']) ? self::date_to_val($val['end_date']) : '';
+            $adminId = !empty($param['admin_id']) ? $param['admin_id'] : 0;
             $tmp = array(
                 'status' => 'OK',
-                'code' => $code,
+                'code' => $cardCode,
                 'card_id' => '',
+                'monthly_card_id' => '',
                 'message' => ''
             );
             
             // Validation
-            if (empty($code)) {
+            if (empty($cardCode)) {
                 $error = true;
                 $tmp['message'] = 'Mã thẻ rỗng';
             }
-            if (!$error && empty($stt)) {
+            if (!$error && empty($carNumber)) {
                 $error = true;
-                $tmp['message'] = 'STT rỗng';
+                $tmp['message'] = 'Biển số rỗng';
             }
             if (!$error && empty($vehicleName)) {
                 $error = true;
@@ -420,22 +435,64 @@ class Model_Monthly_Card extends Model_Abstract {
                     ));
                 }
                 
-                $card = self::find('first', array(
+                $card = Model_Card::find('first', array(
                     'where' => array(
-                        'code' => $code
+                        'code' => $cardCode
                     )
                 ));
                 if (!empty($card)) {
-                    $card->set('vehicle_id', $vehicleId);
-                    $card->set('stt', $stt);
-                    $card->save();
-                    $tmp['card_id'] = $card['id'];
-                    $tmp['message'] = 'Cập nhật';
+                    $cardId = $card->get('id');
                 } else {
-                    $tmp['card_id'] = self::add_update(array(
-                        'code' => $code,
+                    $cardId = Model_Card::add_update(array(
+                        'code' => $cardCode,
                         'stt' => $stt,
                         'vehicle_id' => $vehicleId
+                    ));
+                }
+                
+                $monthlyCard = self::find('first', array(
+                    'where' => array(
+                        'card_id' => $cardId
+                    )
+                ));
+                if (!empty($monthlyCard)) {
+                    $monthlyCard->set('card_id', $cardId);
+                    $monthlyCard->set('car_number', $carNumber);
+                    $monthlyCard->set('customer_name', $customerName);
+                    $monthlyCard->set('id_number', $idNumber);
+                    $monthlyCard->set('email', $email);
+                    $monthlyCard->set('company', $company);
+                    $monthlyCard->set('address', $address);
+                    $monthlyCard->set('brand', $brand);
+                    $monthlyCard->set('parking_fee', $parkingFee);
+                    $monthlyCard->set('vehicle_id', $vehicleId);
+                    $monthlyCard->set('start_date', $startDate);
+                    $monthlyCard->set('end_date', $endDate);
+                    $monthlyCard->set('updated', time());
+                    $monthlyCard->set('admin_id', $adminId);
+                    $monthlyCard->save();
+                    if (!empty($card)) {
+                        $card->set('monthly_card_id', $monthlyCard->get('id'));
+                        $card->set('vehicle_id', $vehicleId);
+                        $card->save();
+                    }
+                    $tmp['message'] = 'Cập nhật';
+                } else {
+                    self::add_update(array(
+                        'card_id' => $cardId,
+                        'car_number' => $carNumber,
+                        'customer_name' => $customerName,
+                        'id_number' => $idNumber,
+                        'email' => $email,
+                        'company' => $company,
+                        'address' => $address,
+                        'brand' => $brand,
+                        'parking_fee' => $parkingFee,
+                        'vehicle_id' => $vehicleId,
+                        'start_date' => $startDate,
+                        'end_date' => $endDate,
+                        'created' => time(),
+                        'admin_id' => $adminId
                     ));
                     $tmp['message'] = 'Tạo mới';
                 }
