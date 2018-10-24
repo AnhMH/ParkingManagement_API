@@ -61,6 +61,7 @@ class Model_Monthly_Card extends Model_Abstract {
                         array('cards.code', 'card_code'),
                         DB::expr("FROM_UNIXTIME(start_date, '%Y-%m-%d') as startdate"),
                         DB::expr("FROM_UNIXTIME(end_date, '%Y-%m-%d') as enddate"),
+                        DB::expr("DATEDIFF(FROM_UNIXTIME(end_date, '%Y-%m-%d'), now()) as total_date"),
                         array('vehicles.name', 'vehicle_name')
                 )
                 ->from(self::$_table_name)
@@ -73,9 +74,6 @@ class Model_Monthly_Card extends Model_Abstract {
         // Filter
         if (!empty($param['code'])) {
             $query->where('cards.code', 'LIKE', "%{$param['code']}%");
-        }
-        if (!empty($param['stt'])) {
-            $query->where(self::$_table_name . '.code', 'LIKE', "%{$param['stt']}%");
         }
         if (!empty($param['vehicle_id'])) {
             $query->where(self::$_table_name . '.vehicle_id', '=', $param['vehicle_id']);
