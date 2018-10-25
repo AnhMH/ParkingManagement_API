@@ -177,6 +177,7 @@ class Model_Monthly_Card extends Model_Abstract {
         $adminId = !empty($param['admin_id']) ? $param['admin_id'] : 0;
         $vehicleId = !empty($param['vehicle_id']) ? $param['vehicle_id'] : 0;
         $new = false;
+        $oldCardId = 0;
         
         // Check if exist User
         if (!empty($id)) {
@@ -185,6 +186,7 @@ class Model_Monthly_Card extends Model_Abstract {
                 self::errorNotExist('monthly_card_id');
                 return false;
             }
+            $oldCardId = $self->get('card_id');
         } else {
             $self = new self;
             $new = true;
@@ -199,6 +201,16 @@ class Model_Monthly_Card extends Model_Abstract {
             ));
             if (!empty($card)) {
                 $cardId = $card['id'];
+                $check = self::find('first', array(
+                    'where' => array(
+                        'card_id' => $cardId,
+                        array('id', '!=', $id)
+                    )
+                ));
+                if (!empty($check)) {
+                    self::errorOther(static::ERROR_CODE_OTHER_1, 'card_id', 'Mã thẻ đã được sử dụng');
+                    return false;
+                }
             } else {
                 $cardId = Model_Card::add_update(array(
                     'code' => $param['card_code'],
@@ -263,6 +275,18 @@ class Model_Monthly_Card extends Model_Abstract {
                 $card->set('monthly_card_id', $self->id);
                 $card->set('vehicle_id', $vehicleId);
                 $card->save();
+            }
+            // Reset old card
+            if ($cardId != $oldCardId) {
+                $oldCard = Model_Card::find('first', array(
+                    'where' => array(
+                        'id' => $oldCardId
+                    )
+                ));
+                if (!empty($oldCard)) {
+                    $oldCard->set('monthly_card_id', 0);
+                    $oldCard->save();
+                }
             }
             return $self->id;
         }
@@ -429,7 +453,8 @@ class Model_Monthly_Card extends Model_Abstract {
                     $vehicleId = $vehicle['id'];
                 } else {
                     $vehicleId = Model_Vehicle::add_update(array(
-                        'name' => $vehicleName
+                        'name' => $vehicleName,
+                        'admin_id' => $adminId
                     ));
                 }
                 
@@ -444,7 +469,8 @@ class Model_Monthly_Card extends Model_Abstract {
                     $cardId = Model_Card::add_update(array(
                         'code' => $cardCode,
                         'stt' => $stt,
-                        'vehicle_id' => $vehicleId
+                        'vehicle_id' => $vehicleId,
+                        'admin_id' => $adminId
                     ));
                 }
                 
