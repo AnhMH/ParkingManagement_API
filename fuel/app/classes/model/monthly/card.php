@@ -501,4 +501,52 @@ class Model_Monthly_Card extends Model_Abstract {
         
         return $results;
     }
+    
+    /**
+     * Renewal
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return Int|bool
+     */
+    public static function renewal($param)
+    {
+        if (!empty($param['date_to'])) {
+            $query = DB::select(
+                    array('cards.code', 'card_code')
+                )
+                ->from(self::$_table_name)
+                ->join('cards')
+                ->on('cards.id', '=', self::$_table_name.'.card_id')
+                ->where(self::$_table_name.'.end_date', '>', self::date_to_val($param['date_to']))
+                ->where(self::$_table_name.'.id', 'IN', explode(',', $param['ids']))
+            ;
+            $check = $query->execute()->as_array();
+            if (!empty($check)) {
+                $code = array();
+                foreach ($check as $val) {
+                    $code[] = $val['card_code'];
+                }
+                $code = implode(', ', $code);
+                self::errorOther(static::ERROR_CODE_OTHER_1, 'card_code', "LỖI!! Mã thẻ {$code} vẫn còn hạn sử dụng.");
+                return false;
+            }
+        }
+        
+        $table = self::$_table_name;
+        $cond = "id IN ({$param['ids']})";
+        if (!empty($param['days'])) {
+            $time = $param['days'] * 60 * 60 * 24;
+            $sql = "UPDATE {$table} SET end_date = end_date + {$time} WHERE {$cond}";
+        } elseif (!empty($param['date_to']) && !empty($param['date_from'])) {
+            $startDate = self::time_to_val($param['date_from']);
+            $endDate = self::date_to_val($param['date_to']);
+            $sql = "UPDATE {$table} SET end_date = {$endDate}, start_date = {$startDate} WHERE {$cond}";
+        }
+        if (!empty($sql)) {
+            return DB::query($sql)->execute();
+        } else {
+            return false;
+        }
+    }
 }
