@@ -55,6 +55,9 @@ class Model_Monthly_Card extends Model_Abstract {
      * @return array|bool Detail Order or false if error
      */
     public static function get_list($param) {
+        // Init
+        $adminId = !empty($param['admin_id']) ? $param['admin_id'] : '';
+        
         // Query
         $query = DB::select(
                         self::$_table_name . '.*',
@@ -107,6 +110,15 @@ class Model_Monthly_Card extends Model_Abstract {
         // Get data
         $data = $query->execute()->as_array();
         $total = !empty($data) ? DB::count_last_query(self::$slave_db) : 0;
+        
+        if (!empty($param['export_data'])) {
+            $logParam = array(
+                'detail' => 'Export thẻ tháng',
+                'admin_id' => $adminId,
+                'type' => static::LOG_TYPE_MONTHLYCARD_EXPORT
+            );
+            Model_System_Log::add_update($logParam);
+        }
 
         return array(
             'total' => $total,
@@ -271,7 +283,9 @@ class Model_Monthly_Card extends Model_Abstract {
             if (empty($card)) {
                 $card = Model_Card::find($cardId);
             }
+            $cardCode = '';
             if (!empty($card)) {
+                $cardCode = $card->get('code');
                 $card->set('monthly_card_id', $self->id);
                 $card->set('vehicle_id', $vehicleId);
                 $card->save();
@@ -288,6 +302,18 @@ class Model_Monthly_Card extends Model_Abstract {
                     $oldCard->save();
                 }
             }
+            $logData = array();
+            foreach (self::$_properties as $val) {
+                $logData[$val] = $self[$val];
+            }
+            $logData['card_code'] = $cardCode;
+            $logParam = array(
+                'detail' => json_encode($logData),
+                'admin_id' => $adminId,
+                'vehicle_id' => $vehicleId,
+                'type' => !empty($new) ? static::LOG_TYPE_MONTHLYCARD_CREATE : static::LOG_TYPE_MONTHLYCARD_UPDATE
+            );
+            Model_System_Log::add_update($logParam);
             return $self->id;
         }
         
@@ -402,6 +428,7 @@ class Model_Monthly_Card extends Model_Abstract {
         }
         
         $data = json_decode($param['data'], true);
+        $adminId = !empty($param['admin_id']) ? $param['admin_id'] : 0;
         $results = array();
         foreach ($data as $val) {
             // Init
@@ -420,7 +447,6 @@ class Model_Monthly_Card extends Model_Abstract {
             $parkingFee = !empty($val['parking_fee']) ? $val['parking_fee'] : '';
             $startDate = !empty($val['start_date']) ? self::time_to_val($val['start_date']) : '';
             $endDate = !empty($val['end_date']) ? self::date_to_val($val['end_date']) : '';
-            $adminId = !empty($param['admin_id']) ? $param['admin_id'] : 0;
             $tmp = array(
                 'status' => 'OK',
                 'code' => $cardCode,
@@ -524,7 +550,12 @@ class Model_Monthly_Card extends Model_Abstract {
             $tmp['status'] = !empty($error) ? 'ERROR' : 'OK';
             $results[] = $tmp;
         }
-        
+        $logParam = array(
+            'detail' => 'Import thẻ tháng',
+            'admin_id' => $adminId,
+            'type' => static::LOG_TYPE_MONTHLYCARD_IMPORT
+        );
+        Model_System_Log::add_update($logParam);
         return $results;
     }
     

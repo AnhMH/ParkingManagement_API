@@ -37,6 +37,12 @@ class Model_Abstract extends Model {
     const LOG_TYPE_ADMIN_TYPE_UPDATE = 6;
     const LOG_TYPE_ADMIN_TYPE_CREATE = 7;
     const LOG_TYPE_ADMIN_TYPE_DELETE = 8;
+    
+    const LOG_TYPE_MONTHLYCARD_CREATE = 9;
+    const LOG_TYPE_MONTHLYCARD_UPDATE = 10;
+    const LOG_TYPE_MONTHLYCARD_DELETE = 11;
+    const LOG_TYPE_MONTHLYCARD_IMPORT = 12;
+    const LOG_TYPE_MONTHLYCARD_EXPORT = 13;
 
     public static $slave_db = 'default';
 

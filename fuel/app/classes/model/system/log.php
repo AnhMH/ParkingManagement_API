@@ -21,7 +21,8 @@ class Model_System_Log extends Model_Abstract {
         'login_time',
         'logout_time',
         'created',
-        'type'
+        'type',
+        'vehicle_id'
     );
 
     protected static $_observers = array(
@@ -52,21 +53,23 @@ class Model_System_Log extends Model_Abstract {
                         self::$_table_name . '.admin_id',
                         self::$_table_name . '.pc_name',
                         self::$_table_name . '.type',
+                        self::$_table_name . '.detail',
+                        self::$_table_name . '.created',
+                        self::$_table_name . '.vehicle_id',
                         DB::expr("FROM_UNIXTIME(login_time, '%Y-%m-%d %H:%i') AS login_time"),
                         DB::expr("FROM_UNIXTIME(logout_time, '%Y-%m-%d %H:%i') AS logout_time"),
                         DB::expr("TIME_FORMAT(SEC_TO_TIME(logout_time - login_time),'%Hh %im') AS total_hours"),
-                        array('admins.name', 'admin_name')
+                        array('admins.name', 'admin_name'),
+                        array('vehicles.name', 'vehicle_name')
                 )
                 ->from(self::$_table_name)
                 ->join('admins', 'LEFT')
                 ->on('admins.id', '=', self::$_table_name.'.admin_id')
+                ->join('vehicles', 'LEFT')
+                ->on('vehicles.id', '=', self::$_table_name.'.vehicle_id')
         ;
 
         // Filter
-        if (!empty($param['admin_id'])) {
-            $query->where(self::$_table_name . '.admin_id', $param['admin_id']);
-        }
-        
         if (!empty($param['option1'])) {
             $query->where(self::$_table_name . '.login_time', '>=', self::time_to_val($param['option1']));
             $query->where(self::$_table_name . '.login_time', '<=', self::date_to_val($param['option1']));
@@ -77,12 +80,20 @@ class Model_System_Log extends Model_Abstract {
         if (!empty($param['option2_to'])) {
             $query->where(self::$_table_name . '.login_time', '<=', self::date_to_val($param['option2_to']));
         }
+        if (!empty($param['log_create_from'])) {
+            $query->where(self::$_table_name . '.created', '>=', self::time_to_val($param['log_create_from']));
+        }
+        if (!empty($param['log_create_to'])) {
+            $query->where(self::$_table_name . '.created', '<=', self::date_to_val($param['log_create_to']));
+        }
         if (!empty($param['adminname'])) {
             $query->where('admin_name', 'LIKE', "%{$param['adminname']}%");
         }
-        
         if (!empty($param['type'])) {
-            $query->where(self::$_table_name . '.type', $param['type']);
+            $query->where(self::$_table_name . '.type', 'IN', explode(',', $param['type']));
+        }
+        if (!empty($param['vehicle_id'])) {
+            $query->where(self::$_table_name . '.vehicle_id', $param['vehicle_id']);
         }
 
         // Pagination
@@ -160,6 +171,9 @@ class Model_System_Log extends Model_Abstract {
         }
         if (!empty($param['detail'])) {
             $self->set('detail', $param['detail']);
+        }
+        if (!empty($param['vehicle_id'])) {
+            $self->set('vehicle_id', $param['vehicle_id']);
         }
         
         // Save data
