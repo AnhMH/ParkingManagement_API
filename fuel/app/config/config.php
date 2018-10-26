@@ -349,4 +349,7 @@ return array(
         'ios' => 'ios',
         'android' => 'android',
     ),
+    'setting_type' => array(
+        'permission' => 1
+    ),
 );
