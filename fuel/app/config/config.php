@@ -350,6 +350,10 @@ return array(
         'android' => 'android',
     ),
     'setting_type' => array(
-        'permission' => 1
+        'permission' => 1,
+        'display' => 2,
+        'price_formula1' => 3,
+        'price_formula2' => 4,
+        'price_formula3' => 5,
     ),
 );
