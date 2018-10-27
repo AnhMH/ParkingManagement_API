@@ -61,15 +61,14 @@ class Model_Setting extends Model_Abstract {
                 );
             }
             if (!empty($addUpdateData)) {
-                // Reset value
-                self::deleteRow(self::$_table_name, array(
-                    'admin_type' => $adminType,
-                    'type' => $type,
-                    'vehicle_id' => $vehicleId
+                // Add/update value
+                self::batchInsert(self::$_table_name, $addUpdateData, array(
+                    'name' => DB::expr('VALUES(name)'),
+                    'value' => DB::expr('VALUES(value)'),
+                    'admin_type' => DB::expr('VALUES(admin_type)'),
+                    'type' => DB::expr('VALUES(type)'),
+                    'vehicle_id' => DB::expr('VALUES(vehicle_id)')
                 ));
-                
-                // Add new value
-                self::batchInsert(self::$_table_name, $addUpdateData);
                 return true;
             }
         }
