@@ -18,7 +18,8 @@ class Model_Setting extends Model_Abstract {
         'name',
         'value',
         'admin_type',
-        'type' // 1: permission, 2: display setting, 3,4,5:priceformula
+        'type', // 1: permission, 2: display setting, 3,4,5:priceformula
+        'vehicle_id'
     );
 
     protected static $_observers = array(
@@ -47,6 +48,7 @@ class Model_Setting extends Model_Abstract {
         $data = !empty($param['data']) ? json_decode($param['data'], true) : array();
         $adminType = !empty($param['admin_type']) ? $param['admin_type'] : '';
         $type = !empty($param['type']) ? $param['type'] : '';
+        $vehicleId = !empty($param['vehicle_id']) ? $param['vehicle_id'] : '';
         if (!empty($data)) {
             $addUpdateData = array();
             foreach ($data as $k => $v) {
@@ -54,14 +56,16 @@ class Model_Setting extends Model_Abstract {
                     'name' => $k,
                     'value' => $v,
                     'admin_type' => $adminType,
-                    'type' => $type
+                    'type' => $type,
+                    'vehicle_id' => $vehicleId
                 );
             }
             if (!empty($addUpdateData)) {
                 // Reset value
                 self::deleteRow(self::$_table_name, array(
                     'admin_type' => $adminType,
-                    'type' => $type
+                    'type' => $type,
+                    'vehicle_id' => $vehicleId
                 ));
                 
                 // Add new value
@@ -95,6 +99,9 @@ class Model_Setting extends Model_Abstract {
         }
         if (!empty($param['admin_type'])) {
             $query->where(self::$_table_name . '.admin_type', $param['admin_type']);
+        }
+        if (!empty($param['vehicle_id'])) {
+            $query->where(self::$_table_name . '.vehicle_id', $param['vehicle_id']);
         }
 
         // Get data
