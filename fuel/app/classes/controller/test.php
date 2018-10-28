@@ -15,11 +15,15 @@ class Controller_Test extends \Controller_App {
      * @return  Response
      */
     public function action_index() {
-        echo \Lib\Util::encodePassword('123456', 'admin2');
-
-        echo gethostname(); // may output e.g,: sandie
-        // Or, an option that also works before PHP 5.3
-        echo php_uname('n'); // may output e.g,: sandie
+        $param = array(
+            'code' => '123'
+        );
+        $time1 = time();
+        $data = Model_Card::checkin($param);
+        echo time() - $time1;
+        echo '<pre>';
+        print_r($data);
+        die();
     }
 
     /**

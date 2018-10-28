@@ -376,4 +376,71 @@ class Model_Card extends Model_Abstract {
         
         return $results;
     }
+    
+    /**
+     * Checkin
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return int|bool User ID or false if error
+     */
+    public static function checkin($param)
+    {
+        // Init
+        $cardCode = !empty($param['code']) ? $param['code'] : '';
+        $adminId = !empty($param['admin_id']) ? $param['admin_id'] : '';
+        $card = array();
+        $admin = array();
+        $vehicle = array();
+        $monthlyCard = array();
+        $time = time();
+        $pcName = gethostname();
+        
+        // Get data
+        $card = self::find('first', array(
+            'where' => array(
+                'code' => $cardCode
+            )
+        ));
+        if (empty($card)) {
+            self::errorNotExist('card_code');
+            return false;
+        }
+        $monthlyCardId = !empty($card['monthly_card_id']) ? $card['monthly_card_id'] : '';
+        $monthlyCard = Model_Monthly_Card::find($monthlyCardId);
+        $vehicleId = !empty($card['vehicle_id']) ? $card['vehicle_id'] : '';
+        $vehicle = Model_Vehicle::find($vehicleId);
+        $admin = Model_Admin::find($adminId);
+        $addUpdateData = array(
+            'card_id' => $card['id'],
+            'card_code' => $cardCode,
+            'card_stt' => $card['stt'],
+            'checkin_time' => $time,
+            'checkout_time' => 0,
+            'car_number' => !empty($monthlyCard['car_number']) ? $monthlyCard['car_number'] : '',
+            'admin_checkin_id' => $adminId,
+            'admin_checkin_name' => !empty($admin['name']) ? $admin['name'] : '',
+            'vehicle_code' => !empty($vehicle['code']) ? $vehicle['code'] : '',
+            'admin_checkout_id' => '',
+            'admin_checkout_name' => '',
+            'monthly_card_id' => $monthlyCardId,
+            'vehicle_id' => $vehicleId,
+            'vehicle_name' => !empty($vehicle['name']) ? $vehicle['name'] : '',
+            'is_card_lost' => $card['disable'],
+            'total_price' => 0,
+            'pc_name' => $pcName,
+            'account' => !empty($admin['account']) ? $admin['account'] : '',
+            'created' => $time,
+            'updated' => $time,
+            'customer_name' => !empty($monthlyCard['customer_name']) ? $monthlyCard['customer_name'] : '',
+            'company' => !empty($monthlyCard['company']) ? $monthlyCard['company'] : ''
+        );
+        
+        // Save data
+        if (Model_Order::add_update($addUpdateData)) {
+            return true;
+        }
+        
+        return false;
+    }
 }

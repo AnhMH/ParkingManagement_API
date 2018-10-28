@@ -49,4 +49,11 @@ class Controller_Cards extends \Controller_App {
     public function action_import() {
         return \Bus\Cards_Import::getInstance()->execute();
     }
+    
+    /**
+     * Card checkin
+     */
+    public function action_checkin() {
+        return \Bus\Cards_Checkin::getInstance()->execute();
+    }
 }
