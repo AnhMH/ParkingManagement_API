@@ -329,6 +329,7 @@ class Model_Admin extends Model_Abstract {
         $id = !empty($param['id']) ? $param['id'] : 0;
         $self = array();
         $new = false;
+        $adminId = !empty($param['admin_id']) ? $param['admin_id'] : '';
         
         // Check code
         if (!empty($param['account'])) {
@@ -379,6 +380,16 @@ class Model_Admin extends Model_Abstract {
             if (empty($self->id)) {
                 $self->id = self::cached_object($self)->_original['id'];
             }
+            $logData = array();
+            foreach (self::$_properties as $val) {
+                $logData[$val] = $self[$val];
+            }
+            $logParam = array(
+                'detail' => json_encode($logData),
+                'admin_id' => $adminId,
+                'type' => !empty($new) ? static::LOG_TYPE_ADMIN_CREATE : static::LOG_TYPE_ADMIN_UPDATE
+            );
+            Model_System_Log::add_update($logParam);
             return $self->id;
         }
         

@@ -96,6 +96,15 @@ class Model_Card extends Model_Abstract {
         // Get data
         $data = $query->execute()->as_array();
         $total = !empty($data) ? DB::count_last_query(self::$slave_db) : 0;
+        
+        if (!empty($param['export_data'])) {
+            $logParam = array(
+                'detail' => 'Export thẻ',
+                'admin_id' => $adminId,
+                'type' => static::LOG_TYPE_CARD_EXPORT
+            );
+            Model_System_Log::add_update($logParam);
+        }
 
         return array(
             'total' => $total,
@@ -213,6 +222,16 @@ class Model_Card extends Model_Abstract {
             if (empty($self->id)) {
                 $self->id = self::cached_object($self)->_original['id'];
             }
+            $logData = array();
+            foreach (self::$_properties as $val) {
+                $logData[$val] = $self[$val];
+            }
+            $logParam = array(
+                'detail' => json_encode($logData),
+                'admin_id' => $adminId,
+                'type' => !empty($new) ? static::LOG_TYPE_CARD_CREATE : static::LOG_TYPE_CARD_UPDATE
+            );
+            Model_System_Log::add_update($logParam);
             return $self->id;
         }
         
@@ -373,7 +392,12 @@ class Model_Card extends Model_Abstract {
             $tmp['status'] = !empty($error) ? 'ERROR' : 'OK';
             $results[] = $tmp;
         }
-        
+        $logParam = array(
+            'detail' => 'Import thẻ',
+            'admin_id' => $adminId,
+            'type' => static::LOG_TYPE_CARD_IMPORT
+        );
+        Model_System_Log::add_update($logParam);
         return $results;
     }
     

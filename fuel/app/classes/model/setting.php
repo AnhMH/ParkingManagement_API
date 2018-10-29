@@ -49,6 +49,7 @@ class Model_Setting extends Model_Abstract {
         $adminType = !empty($param['admin_type']) ? $param['admin_type'] : '';
         $type = !empty($param['type']) ? $param['type'] : '';
         $vehicleId = !empty($param['vehicle_id']) ? $param['vehicle_id'] : '';
+        $adminId = !empty($param['admin_id']) ? $param['admin_id'] : '';
         if (!empty($data)) {
             $addUpdateData = array();
             foreach ($data as $k => $v) {
@@ -69,6 +70,25 @@ class Model_Setting extends Model_Abstract {
                     'type' => DB::expr('VALUES(type)'),
                     'vehicle_id' => DB::expr('VALUES(vehicle_id)')
                 ));
+                $logType = '';
+                if ($type == \Config::get('setting_type')['price_formula1']) {
+                    $logType = static::LOG_TYPE_UPDATE_PRICE_FORMULA1;
+                }
+                if ($type == \Config::get('setting_type')['price_formula2']) {
+                    $logType = static::LOG_TYPE_UPDATE_PRICE_FORMULA2;
+                }
+                if ($type == \Config::get('setting_type')['price_formula3']) {
+                    $logType = static::LOG_TYPE_UPDATE_PRICE_FORMULA3;
+                }
+                if (!empty($logType)) {
+                    $logParam = array(
+                        'detail' => json_encode($addUpdateData),
+                        'admin_id' => $adminId,
+                        'type' => $logType
+                    );
+                    Model_System_Log::add_update($logParam);
+                }
+                
                 return true;
             }
         }

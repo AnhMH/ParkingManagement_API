@@ -43,6 +43,16 @@ class Model_Abstract extends Model {
     const LOG_TYPE_MONTHLYCARD_DELETE = 11;
     const LOG_TYPE_MONTHLYCARD_IMPORT = 12;
     const LOG_TYPE_MONTHLYCARD_EXPORT = 13;
+    
+    const LOG_TYPE_CARD_CREATE = 14;
+    const LOG_TYPE_CARD_UPDATE = 15;
+    const LOG_TYPE_CARD_DELETE = 16;
+    const LOG_TYPE_CARD_IMPORT = 17;
+    const LOG_TYPE_CARD_EXPORT = 18;
+    
+    const LOG_TYPE_UPDATE_PRICE_FORMULA1 = 19;
+    const LOG_TYPE_UPDATE_PRICE_FORMULA2 = 20;
+    const LOG_TYPE_UPDATE_PRICE_FORMULA3 = 21;
 
     public static $slave_db = 'default';
 
