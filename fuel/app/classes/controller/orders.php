@@ -14,4 +14,11 @@ class Controller_Orders extends \Controller_App {
     public function action_list() {
         return \Bus\Orders_List::getInstance()->execute();
     }
+    
+    /**
+     * Order card disable
+     */
+    public function action_carddisable() {
+        return \Bus\Orders_CardDisable::getInstance()->execute();
+    }
 }

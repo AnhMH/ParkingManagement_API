@@ -221,8 +221,9 @@ class Model_Order extends Model_Abstract {
         // Query
         $query = DB::select(
                         self::$_table_name . '.*',
-                        DB::expr("FROM_UNIXTIME(checkin_time, '%Y-%m-%d') as checkintime"),
-                        DB::expr("FROM_UNIXTIME(checkout_time, '%Y-%m-%d') as checkouttime")
+                        DB::expr("FROM_UNIXTIME(checkin_time, '%Y-%m-%d %H:%i') as checkintime"),
+                        DB::expr("FROM_UNIXTIME(checkout_time, '%Y-%m-%d %H:%i') as checkouttime"),
+                        DB::expr("IF(monthly_card_id > 0, card_code, '') as monthly_card_code")
                 )
                 ->from(self::$_table_name)
         ;
@@ -234,11 +235,25 @@ class Model_Order extends Model_Abstract {
         if (!empty($param['car_number'])) {
             $query->where(self::$_table_name . '.car_number', 'LIKE', "%{$param['car_number']}%");
         }
+        if (!empty($param['car_stt'])) {
+            $query->where(self::$_table_name . '.car_stt', 'LIKE', "%{$param['car_stt']}%");
+        }
         if (!empty($param['created_from'])) {
             $query->where(self::$_table_name . '.created', '>=', self::time_to_val($param['created_from']));
         }
         if (!empty($param['created_to'])) {
             $query->where(self::$_table_name . '.created', '<=', self::date_to_val($param['created_to']));
+        }
+        if (!empty($param['card_type'])) {
+            if ($param['card_type'] == 'normal') {
+                $query->where_open();
+                $query->where(self::$_table_name . '.monthly_card_id', 'IS', null);
+                $query->or_where(self::$_table_name . '.monthly_card_id', '=', 0);
+                $query->or_where(self::$_table_name . '.monthly_card_id', '=', '');
+                $query->where_close();
+            } elseif ($param['card_type'] == 'monthly') {
+                $query->where(self::$_table_name . '.monthly_card_id', '>', 0);
+            }
         }
         // Pagination
         if (!empty($param['page']) && $param['limit']) {
@@ -270,5 +285,63 @@ class Model_Order extends Model_Abstract {
             'total' => $total,
             'data' => $data
         );
+    }
+    
+    /**
+     * Card disable
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return Int|bool
+     */
+    public static function card_disable($param)
+    {
+        $query = DB::select(
+                'card_code'
+            )
+            ->from(self::$_table_name)
+            ->where(self::$_table_name.'.id', 'IN', explode(',', $param['id']))
+            ->where(self::$_table_name.'.checkout_time', '>', 0)
+        ;
+        $check = $query->execute()->as_array();
+        if (!empty($check)) {
+            $code = array();
+            foreach ($check as $val) {
+                $code[] = $val['card_code'];
+            }
+            $code = implode(', ', $code);
+            self::errorOther(static::ERROR_CODE_OTHER_1, 'card_code', "LỖI!! Xe đã ra khỏi bãi.");
+            return false;
+        }
+        $query = DB::select(
+                'card_id',
+                'monthly_card_id'
+            )
+            ->from(self::$_table_name)
+            ->where(self::$_table_name.'.id', 'IN', explode(',', $param['id']))
+        ;
+        $data = $query->execute()->as_array();
+        $cardIds = array();
+        $monthlyCardIds = array();
+        if (!empty($data)) {
+            foreach ($data as $val) {
+                $cardIds[] = $val['card_id'];
+                $monthlyCardIds[] = $val['monthly_card_id'];
+            } 
+        }
+        
+        $table = self::$_table_name;
+        $cond = "id IN ({$param['id']})";
+        $sql = "UPDATE {$table} SET is_card_lost = 1 WHERE {$cond};";
+        if (!empty($cardIds)) {
+            $cardIds = implode(',', $cardIds);
+            $sql .= "UPDATE cards SET disable = 1 WHERE id IN ({$cardIds});";
+        }
+        if (!empty($monthlyCardIds)) {
+            $monthlyCardIds = implode(',', $monthlyCardIds);
+            $sql .= "UPDATE monthly_cards SET disable = 1 WHERE id IN ({$monthlyCardIds});";
+        }
+        DB::query($sql)->execute();
+        return true;
     }
 }
