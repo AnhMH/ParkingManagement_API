@@ -3,14 +3,14 @@
 namespace Bus;
 
 /**
- * Checkin Card
+ * Checkout Card
  *
  * @package Bus
  * @created 2017-10-22
  * @version 1.0
  * @author AnhMH
  */
-class Cards_Checkin extends BusAbstract
+class Cards_Checkout extends BusAbstract
 {
     /** @var array $_required field require */
     protected $_required = array(
@@ -33,7 +33,7 @@ class Cards_Checkin extends BusAbstract
     public function operateDB($data)
     {
         try {
-            $this->_response = \Model_Card::checkin($data);
+            $this->_response = \Model_Card::checkout($data);
             return $this->result(\Model_Card::error());
         } catch (\Exception $e) {
             $this->_exception = $e;

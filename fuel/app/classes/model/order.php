@@ -158,4 +158,51 @@ class Model_Order extends Model_Abstract {
         
         return false;
     }
+    
+    /**
+     * Get price
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return int
+     */
+    public static function get_price_by_formula1($setting = array(), $checkinTime = null, $checkoutTime = null, $isMonthlyCard = false)
+    {
+        $price = 0;
+        if (!empty($setting)) {
+            $nightStart = !empty($setting['night_start']) ? $setting['night_start'] : 24;
+            $nightEnd = !empty($setting['night_end']) ? $setting['night_end'] : 0;
+            $dayTime = $nightStart - $nightEnd;
+            $monthlyCardPrice = !empty($setting['monthly_card_time_price']) ? $setting['monthly_card_time_price'] : 0;
+            if (!empty($isMonthlyCard)) {
+                return $monthlyCardPrice;
+            }
+            
+        }
+        return $price;
+    }
+    
+    /**
+     * Get price
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return int
+     */
+    public static function get_price_by_formula2($setting = array(), $checkinTime = null, $checkoutTime = null, $isMonthlyCard = false)
+    {
+        return 1000;
+    }
+    
+    /**
+     * Get price
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return int
+     */
+    public static function get_price_by_formula3($setting = array(), $checkinTime = null, $checkoutTime = null, $isMonthlyCard = false)
+    {
+        return 2000;
+    }
 }

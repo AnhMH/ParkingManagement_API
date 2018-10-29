@@ -443,4 +443,109 @@ class Model_Card extends Model_Abstract {
         
         return false;
     }
+    
+    /**
+     * Checkout
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return int|bool User ID or false if error
+     */
+    public static function checkout($param)
+    {
+        // Init
+        $cardCode = !empty($param['code']) ? $param['code'] : '';
+        $adminId = !empty($param['admin_id']) ? $param['admin_id'] : '';
+        $totalPrice = 0;
+        $order = array();
+        $admin = array();
+        $settings = array();
+        $displaySetting = array();
+        $priceFormula1Setting = array();
+        $priceFormula2Setting = array();
+        $priceFormula3Setting = array();
+        $time = time();
+        $settingTypePriceFormula1 = \Config::get('setting_type')['price_formula1'];
+        $settingTypePriceFormula2 = \Config::get('setting_type')['price_formula2'];
+        $settingTypePriceFormula3 = \Config::get('setting_type')['price_formula3'];
+        $settingTypeDisplay = \Config::get('setting_type')['display'];
+        $settingTypes = array(
+            $settingTypePriceFormula1,
+            $settingTypePriceFormula2,
+            $settingTypePriceFormula3,
+            $settingTypeDisplay
+        );
+        
+        // Get data
+        $order = Model_Order::find('last', array(
+            'where' => array(
+                'card_code' => $cardCode,
+                array(
+                    array(
+                        'checkout_time' => 0
+                    ),
+                    'or' => array(
+                        'checkout_time' => null
+                    )
+                )
+            )
+        ));
+        if (empty($order)) {
+            self::errorNotExist('checkin_id');
+            return false;
+        }
+        $vehicleId = !empty($order['vehicle_id']) ? $order['vehicle_id'] : '';
+        $monthlyCardId = !empty($order['monthly_card_id']) ? $order['monthly_card_id'] : '';
+        $checkinTime = $order['checkin_time'];
+        $admin = Model_Admin::find($adminId);
+        $adminCheckoutName = !empty($admin['name']) ? $admin['name'] : '';
+        
+        $settings = DB::select(
+                        'settings.*'
+                )
+                ->from('settings')
+                ->where_open()
+                ->where('vehicle_id', 'IS', null)
+                ->or_where('vehicle_id', 0)
+                ->or_where('vehicle_id', $vehicleId)
+                ->where_close()
+                ->where('settings.type', 'IN', $settingTypes)
+                ->execute()
+                ->as_array()
+        ;
+        
+        if (!empty($settings)) {
+            foreach ($settings as $val) {
+                if ($val['type'] == $settingTypeDisplay) {
+                    $displaySetting[$val['name']] = $val['value'];
+                } elseif ($val['type'] == $settingTypePriceFormula1) {
+                    $priceFormula1Setting[$val['name']] = $val['value'];
+                } elseif ($val['type'] == $settingTypePriceFormula2) {
+                    $priceFormula2Setting[$val['name']] = $val['value'];
+                } elseif ($val['type'] == $settingTypePriceFormula3) {
+                    $priceFormula3Setting[$val['name']] = $val['value'];
+                }
+            }
+        }
+        $parkingType = !empty($displaySetting['parking_type']) ? $displaySetting['parking_type'] : 0;
+        if ($parkingType == 1) {
+            $totalPrice = Model_Order::get_price_by_formula1($priceFormula1Setting, $checkinTime, $time, $monthlyCardId);
+        } elseif ($parkingType == 2) {
+            $totalPrice = Model_Order::get_price_by_formula2($priceFormula2Setting, $checkinTime, $time, $monthlyCardId);
+        } elseif ($parkingType == 3) {
+            $totalPrice = Model_Order::get_price_by_formula3($priceFormula3Setting, $checkinTime, $time, $monthlyCardId);
+        }
+        $order->set('admin_checkout_id', $adminId);
+        $order->set('admin_checkout_name', $adminCheckoutName);
+        $order->set('checkout_time', $time);
+        $order->set('total_price', $totalPrice);
+        $order->set('updated', $time);
+        
+        // Save data
+        if ($order->save()) {
+            return true;
+        }
+        
+        return false;
+    }
 }

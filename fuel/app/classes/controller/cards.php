@@ -56,4 +56,11 @@ class Controller_Cards extends \Controller_App {
     public function action_checkin() {
         return \Bus\Cards_Checkin::getInstance()->execute();
     }
+    
+    /**
+     * Card checkout
+     */
+    public function action_checkout() {
+        return \Bus\Cards_Checkout::getInstance()->execute();
+    }
 }
