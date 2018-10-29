@@ -81,8 +81,12 @@ class Model_Setting extends Model_Abstract {
                     $logType = static::LOG_TYPE_UPDATE_PRICE_FORMULA3;
                 }
                 if (!empty($logType)) {
+                    $logData = array();
+                    foreach ($addUpdateData as $val) {
+                        $logData[$val['name']] = $val['value'];
+                    }
                     $logParam = array(
-                        'detail' => json_encode($addUpdateData),
+                        'detail' => json_encode($logData),
                         'admin_id' => $adminId,
                         'type' => $logType
                     );
