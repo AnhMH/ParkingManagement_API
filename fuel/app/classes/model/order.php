@@ -37,7 +37,8 @@ class Model_Order extends Model_Abstract {
         'updated',
         'disable',
         'customer_name',
-        'company'
+        'company',
+        'notes'
     );
 
     protected static $_observers = array(
@@ -147,6 +148,9 @@ class Model_Order extends Model_Abstract {
         if (!empty($param['company'])) {
             $self->set('company', $param['company']);
         }
+        if (!empty($param['notes'])) {
+            $self->set('notes', $param['notes']);
+        }
         
         // Save data
         if ($self->save()) {
@@ -204,5 +208,67 @@ class Model_Order extends Model_Abstract {
     public static function get_price_by_formula3($setting = array(), $checkinTime = null, $checkoutTime = null, $isMonthlyCard = false)
     {
         return 2000;
+    }
+    
+    /**
+     * Get list
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return array|bool Detail Order or false if error
+     */
+    public static function get_list($param) {
+        // Query
+        $query = DB::select(
+                        self::$_table_name . '.*',
+                        DB::expr("FROM_UNIXTIME(checkin_time, '%Y-%m-%d') as checkintime"),
+                        DB::expr("FROM_UNIXTIME(checkout_time, '%Y-%m-%d') as checkouttime")
+                )
+                ->from(self::$_table_name)
+        ;
+
+        // Filter
+        if (!empty($param['card_code'])) {
+            $query->where(self::$_table_name . '.card_code', 'LIKE', "%{$param['card_code']}%");
+        }
+        if (!empty($param['car_number'])) {
+            $query->where(self::$_table_name . '.car_number', 'LIKE', "%{$param['car_number']}%");
+        }
+        if (!empty($param['created_from'])) {
+            $query->where(self::$_table_name . '.created', '>=', self::time_to_val($param['created_from']));
+        }
+        if (!empty($param['created_to'])) {
+            $query->where(self::$_table_name . '.created', '<=', self::date_to_val($param['created_to']));
+        }
+        // Pagination
+        if (!empty($param['page']) && $param['limit']) {
+            $offset = ($param['page'] - 1) * $param['limit'];
+            $query->limit($param['limit'])->offset($offset);
+        }
+
+        // Sort
+        if (!empty($param['sort'])) {
+            if (!self::checkSort($param['sort'])) {
+                self::errorParamInvalid('sort');
+                return false;
+            }
+
+            $sortExplode = explode('-', $param['sort']);
+            if ($sortExplode[0] == 'created') {
+                $sortExplode[0] = self::$_table_name . '.created';
+            }
+            $query->order_by($sortExplode[0], $sortExplode[1]);
+        } else {
+            $query->order_by(self::$_table_name . '.id', 'DESC');
+        }
+
+        // Get data
+        $data = $query->execute()->as_array();
+        $total = !empty($data) ? DB::count_last_query(self::$slave_db) : 0;
+
+        return array(
+            'total' => $total,
+            'data' => $data
+        );
     }
 }

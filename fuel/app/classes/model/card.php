@@ -499,6 +499,7 @@ class Model_Card extends Model_Abstract {
         $checkinTime = $order['checkin_time'];
         $admin = Model_Admin::find($adminId);
         $adminCheckoutName = !empty($admin['name']) ? $admin['name'] : '';
+        $adminAccount = !empty($admin['account']) ? $admin['account'] : '';
         
         $settings = DB::select(
                         'settings.*'
@@ -538,6 +539,7 @@ class Model_Card extends Model_Abstract {
         $order->set('admin_checkout_id', $adminId);
         $order->set('admin_checkout_name', $adminCheckoutName);
         $order->set('checkout_time', $time);
+        $order->set('account', $adminAccount);
         $order->set('total_price', $totalPrice);
         $order->set('updated', $time);
         
