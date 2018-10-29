@@ -172,6 +172,7 @@ class Model_Card extends Model_Abstract {
         $id = !empty($param['id']) ? $param['id'] : 0;
         $self = array();
         $new = false;
+        $adminId = !empty($param['admin_id']) ? $param['admin_id'] : '';
         
         // Check code
         if (!empty($param['code'])) {
