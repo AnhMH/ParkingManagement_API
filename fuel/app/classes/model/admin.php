@@ -62,6 +62,10 @@ class Model_Admin extends Model_Abstract {
                     'regist_type' => 'admin',
                     'update_token' => true
                 ));
+                $login['permission'] = \Lib\Arr::key_value(Model_Setting::get_detail(array(
+                    'type' => \Config::get('setting_type')['permission'],
+                    'admin_type' => $login['type']
+                )), 'name', 'value');
                 $lastLogin = Model_System_Log::find('last', array(
                     'where' => array(
                         'admin_id' => $login['id']
