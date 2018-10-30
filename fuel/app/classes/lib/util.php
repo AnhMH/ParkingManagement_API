@@ -508,5 +508,16 @@ class Util {
         $versionApp   = !empty(Input::headers('Version')) && is_numeric(Input::headers('Version')) ? intval(Input::headers('Version')) : 0;
         return $versionApp;
     }
+    
+    /**
+     * Get day diff
+     * @return int
+     */
+    public static function getDayDiff($d1, $d2, $format = '%a') {
+        $datetime1 = new \DateTime($d1);
+        $datetime2 = new \DateTime($d2);
+        $interval = $datetime1->diff($datetime2);
+        return $interval->format($format);
+    }
 
 }

@@ -174,14 +174,71 @@ class Model_Order extends Model_Abstract {
     {
         $price = 0;
         if (!empty($setting)) {
+            $totalHours = round(abs($checkoutTime - $checkinTime) / 3600, 0);
+            if (!empty($isMonthlyCard)) {
+                $monthlyCardPrice = !empty($setting['monthly_card_time_price']) ? $setting['monthly_card_time_price'] : 0;
+                $monthlyCardTime = !empty($setting['monthly_card_time']) ? $setting['monthly_card_time'] : 0;
+                return ($totalHours/$monthlyCardTime + $totalHours%$monthlyCardTime)*$monthlyCardPrice;
+            }
+            $d1 = date('Y-m-d', $checkinTime);
+            $d2 = date('Y-m-d', $checkoutTime);
+            $h1 = date('H', $checkinTime);
+            $h2 = date('H', $checkoutTime);
             $nightStart = !empty($setting['night_start']) ? $setting['night_start'] : 24;
             $nightEnd = !empty($setting['night_end']) ? $setting['night_end'] : 0;
-            $dayTime = $nightStart - $nightEnd;
-            $monthlyCardPrice = !empty($setting['monthly_card_time_price']) ? $setting['monthly_card_time_price'] : 0;
-            if (!empty($isMonthlyCard)) {
-                return $monthlyCardPrice;
+            $timeDayNight = !empty($setting['time_day_night']) ? $setting['time_day_night'] : 0;
+            $normalPrice = !empty($setting['normal_price']) ? $setting['normal_price'] : 0;
+            $nightPrice = !empty($setting['night_price']) ? $setting['night_price'] : 0;
+            $dayNightPrice = !empty($setting['day_night_price']) ? $setting['day_night_price'] : 0;
+            $overMinute = !empty($setting['over_minute']) ? $setting['over_minute'] : 0;
+            $overMinutePrice = !empty($setting['over_minute_price']) ? $setting['over_minute_price'] : 0;
+            $dayDiff = \Lib\Util::getDayDiff($d1, $d2);
+            if ($dayDiff > 1 || $totalHours > 24) {
+                if ($h1 < $nightStart) {
+                    if ($h2 >= $nightEnd) {
+                        $price = ($dayDiff + 1)*$dayNightPrice + $normalPrice;
+                    } else {
+                        $price = $dayDiff*$dayNightPrice + $nightPrice;
+                    }
+                } else {
+                    if ($h2 >= $nightStart) {
+                        $price = ($dayDiff + 1)*$dayNightPrice + $nightPrice;
+                    } elseif ($h2 < $nightEnd) {
+                        $price = $dayDiff*$dayNightPrice + $nightPrice;
+                    } else {
+                        $price = $dayDiff*$dayNightPrice + $normalPrice;
+                    }
+                }
+            } else {
+                if ($h2 < $timeDayNight) {
+                    $price = $normalPrice + $overMinutePrice;
+                } elseif ($dayDiff == 0 && $h1 >= $nightEnd && $h2 < $nightStart) {
+                    $price = $normalPrice;
+                } elseif (($dayDiff == 0 && $h1 >= $nightStart && $h2 < 24) || $dayDiff == 1 && $h1 >= $nightStart && $h2 < $nightEnd) {
+                    $price = $nightPrice;
+                } elseif ($totalHours >= $timeDayNight) {
+                    $price = $dayNightPrice;
+                } else {
+                    $timeDay = '';
+                    $timeNight = '';
+                    if ($h1 >= $nightEnd) {
+                        $timeDay = $nightStart - $h1;
+                        if ($dayDiff == 0) {
+                            $timeDayNight = $h2 - $nightStart;
+                        } else {
+                            $timeDayNight = 24 - $nightStart + $h2;
+                        }
+                    } else {
+                        $timeDay = $h2 - $nightEnd;
+                        $timeNight = $nightEnd - $h1;
+                    }
+                    if ($timeNight > $timeDay) {
+                        $price = $nightPrice;
+                    } else {
+                        $price = $normalPrice;
+                    }
+                }
             }
-            
         }
         return $price;
     }
@@ -205,6 +262,11 @@ class Model_Order extends Model_Abstract {
             $lv3Time = !empty($setting['level_3_time']) ? $setting['level_3_time'] : 0;
             $lv3PriceType = !empty($setting['level_3_price_type']) ? $setting['level_3_price_type'] : 0;
             $totalHours = round(abs($checkoutTime - $checkinTime) / 3600, 0);
+            if (!empty($isMonthlyCard)) {
+                $monthlyCardPrice = !empty($setting['monthly_card_time_price']) ? $setting['monthly_card_time_price'] : 0;
+                $monthlyCardTime = !empty($setting['monthly_card_time']) ? $setting['monthly_card_time'] : 0;
+                return ($totalHours/$monthlyCardTime + $totalHours%$monthlyCardTime)*$monthlyCardPrice;
+            }
             if ($totalHours <= $lv1Time) {
                 $price = $lv1Price;
             } elseif ($totalHours <= ($lv1Time + $lv2Time)) {
@@ -239,6 +301,11 @@ class Model_Order extends Model_Abstract {
             $lv3Time = !empty($setting['level_3_time']) ? $setting['level_3_time'] : 0;
             $lv3PriceType = !empty($setting['level_3_price_type']) ? $setting['level_3_price_type'] : 0;
             $totalHours = round(abs($checkoutTime - $checkinTime) / 3600, 0);
+            if (!empty($isMonthlyCard)) {
+                $monthlyCardPrice = !empty($setting['monthly_card_time_price']) ? $setting['monthly_card_time_price'] : 0;
+                $monthlyCardTime = !empty($setting['monthly_card_time']) ? $setting['monthly_card_time'] : 0;
+                return ($totalHours/$monthlyCardTime + $totalHours%$monthlyCardTime)*$monthlyCardPrice;
+            }
             if ($totalHours <= $lv1Time) {
                 $price = $lv1Price;
             } elseif ($totalHours <= ($lv2Time)) {

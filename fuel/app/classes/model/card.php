@@ -570,7 +570,9 @@ class Model_Card extends Model_Abstract {
         
         // Save data
         if ($order->save()) {
-            return true;
+            return array(
+                'total_price' => $totalPrice
+            );
         }
         
         return false;
