@@ -19,7 +19,7 @@ class Controller_Test extends \Controller_App {
             'code' => '2222'
         );
         $time1 = time();
-        $data = Model_Card::checkin($param);
+        $data = Model_Card::checkout($param);
         echo time() - $time1;
         echo '<pre>';
         print_r($data);

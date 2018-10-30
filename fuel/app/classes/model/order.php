@@ -193,9 +193,31 @@ class Model_Order extends Model_Abstract {
      * @param array $param Input data
      * @return int
      */
-    public static function get_price_by_formula2($setting = array(), $checkinTime = null, $checkoutTime = null, $isMonthlyCard = false)
+    public static function get_price_by_formula2($setting = array(), $checkinTime = 0, $checkoutTime = 0, $isMonthlyCard = false)
     {
-        return 1000;
+        $price = 0;
+        if (!empty($setting)) {
+            $lv1Time = !empty($setting['level_1_time']) ? $setting['level_1_time'] : 0;
+            $lv1Price = !empty($setting['level_1_price']) ? $setting['level_1_price'] : 0;
+            $lv2Time = !empty($setting['level_2_time']) ? $setting['level_2_time'] : 0;
+            $lv2Price = !empty($setting['level_2_price']) ? $setting['level_2_price'] : 0;
+            $lv3Price = !empty($setting['level_3_price']) ? $setting['level_3_price'] : 0;
+            $lv3Time = !empty($setting['level_3_time']) ? $setting['level_3_time'] : 0;
+            $lv3PriceType = !empty($setting['level_3_price_type']) ? $setting['level_3_price_type'] : 0;
+            $totalHours = round(abs($checkoutTime - $checkinTime) / 3600, 0);
+            if ($totalHours <= $lv1Time) {
+                $price = $lv1Price;
+            } elseif ($totalHours <= ($lv1Time + $lv2Time)) {
+                $price = $lv1Price + $lv2Price;
+            } else {
+                if ($lv3PriceType == 1) {// Cộng dồn mức 1
+                    $price = $lv1Price + (($totalHours-$lv1Time)/$lv3Time + ($totalHours-$lv1Time)%$lv3Time)*$lv3Price;
+                } else {
+                    $price = ($totalHours/$lv3Time + $totalHours%$lv3Time)*$lv3Price;
+                }
+            }
+        }
+        return $price;
     }
     
     /**
@@ -207,7 +229,29 @@ class Model_Order extends Model_Abstract {
      */
     public static function get_price_by_formula3($setting = array(), $checkinTime = null, $checkoutTime = null, $isMonthlyCard = false)
     {
-        return 2000;
+        $price = 0;
+        if (!empty($setting)) {
+            $lv1Time = !empty($setting['level_1_time']) ? $setting['level_1_time'] : 0;
+            $lv1Price = !empty($setting['level_1_price']) ? $setting['level_1_price'] : 0;
+            $lv2Time = !empty($setting['level_2_time']) ? $setting['level_2_time'] : 0;
+            $lv2Price = !empty($setting['level_2_price']) ? $setting['level_2_price'] : 0;
+            $lv3Price = !empty($setting['level_3_price']) ? $setting['level_3_price'] : 0;
+            $lv3Time = !empty($setting['level_3_time']) ? $setting['level_3_time'] : 0;
+            $lv3PriceType = !empty($setting['level_3_price_type']) ? $setting['level_3_price_type'] : 0;
+            $totalHours = round(abs($checkoutTime - $checkinTime) / 3600, 0);
+            if ($totalHours <= $lv1Time) {
+                $price = $lv1Price;
+            } elseif ($totalHours <= ($lv2Time)) {
+                $price = $lv2Price;
+            } else {
+                if ($lv3PriceType == 1) {// Cộng dồn mức 1
+                    $price = $lv1Price + (($totalHours-$lv1Time)/$lv3Time + ($totalHours-$lv1Time)%$lv3Time)*$lv3Price;
+                } else {
+                    $price = ($totalHours/$lv3Time + $totalHours%$lv3Time)*$lv3Price;
+                }
+            }
+        }
+        return $price;
     }
     
     /**
