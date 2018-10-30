@@ -344,4 +344,92 @@ class Model_Order extends Model_Abstract {
         DB::query($sql)->execute();
         return true;
     }
+    
+    /**
+     * Get revenue
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return Int|bool
+     */
+    public static function get_revenue($param)
+    {
+        $data = array();
+        $card = array();
+        $monthlyCard = array();
+        $cardType = !empty($param['card_type']) ? $param['card_type'] : '';
+        if (empty($cardType) || $cardType == 1) {
+            $query = DB::select(
+                        DB::expr("SUM(CASE WHEN checkin_time > 0 THEN 1 ELSE 0 END) as total_checkin"),
+                        DB::expr("SUM(CASE WHEN checkout_time > 0 THEN 1 ELSE 0 END) as total_checkout"),
+                        DB::expr("SUM(total_price) as total_price"),
+                        array('vehicles.name', 'vehicle_name')
+                )
+                ->from(self::$_table_name)
+                ->join('vehicles', 'LEFT')
+                ->on(self::$_table_name.'.vehicle_id', '=', 'vehicles.id')
+                ->where_open()
+                ->where(self::$_table_name.'.monthly_card_id', 0)
+                ->or_where(self::$_table_name.'.monthly_card_id', '')
+                ->or_where(self::$_table_name.'.monthly_card_id', 'IS', NULL)
+                ->where_close()
+                ->group_by(self::$_table_name.'.vehicle_id')
+            ;
+            if (!empty($param['admin'])) {
+                $query->where_open();
+                $query->where(self::$_table_name.'.admin_checkin_id', $param['admin']);
+                $query->or_where(self::$_table_name.'.admin_checkout_id', $param['admin']);
+                $query->where_close();
+            }
+            if (!empty($param['option1'])) {
+                $query->where(self::$_table_name.'.created', '>=', self::time_to_val($param['option1']));
+                $query->where(self::$_table_name.'.created', '<=', self::date_to_val($param['option1']));
+            }
+            if (!empty($param['option2_from'])) {
+                $query->where(self::$_table_name.'.created', '>=', self::time_to_val($param['option2_from']));
+            }
+            if (!empty($param['option2_to'])) {
+                $query->where(self::$_table_name.'.created', '<=', self::date_to_val($param['option2_to']));
+            }
+            $card = $query->execute()->as_array();
+        }
+        
+        if (empty($cardType) || $cardType == 2) {
+            $query = DB::select(
+                        DB::expr("SUM(CASE WHEN checkin_time > 0 THEN 1 ELSE 0 END) as total_checkin"),
+                        DB::expr("SUM(CASE WHEN checkout_time > 0 THEN 1 ELSE 0 END) as total_checkout"),
+                        DB::expr("SUM(IFNULL(total_price,0)) as total_price"),
+                        array('vehicles.name', 'vehicle_name')
+                )
+                ->from(self::$_table_name)
+                ->join('vehicles', 'LEFT')
+                ->on(self::$_table_name.'.vehicle_id', '=', 'vehicles.id')
+                ->where(self::$_table_name.'.monthly_card_id', '>', 0)
+                ->group_by(self::$_table_name.'.vehicle_id')
+            ;
+            if (!empty($param['admin'])) {
+                $query->where_open();
+                $query->where(self::$_table_name.'.admin_checkin_id', $param['admin']);
+                $query->or_where(self::$_table_name.'.admin_checkout_id', $param['admin']);
+                $query->where_close();
+            }
+            if (!empty($param['option1'])) {
+                $query->where(self::$_table_name.'.created', '>=', self::time_to_val($param['option1']));
+                $query->where(self::$_table_name.'.created', '<=', self::date_to_val($param['option1']));
+            }
+            if (!empty($param['option2_from'])) {
+                $query->where(self::$_table_name.'.created', '>=', self::time_to_val($param['option2_from']));
+            }
+            if (!empty($param['option2_to'])) {
+                $query->where(self::$_table_name.'.created', '<=', self::date_to_val($param['option2_to']));
+            }
+            $monthlyCard = $query->execute()->as_array();
+        }
+        
+        $data = array(
+            'card' => $card,
+            'monthly_card' => $monthlyCard
+        );
+        return $data;
+    }
 }

@@ -43,6 +43,13 @@ class Controller_Admins extends \Controller_App {
     }
     
     /**
+     * Admin all
+     */
+    public function action_all() {
+        return \Bus\Admins_All::getInstance()->execute();
+    }
+    
+    /**
      * Admin addupdate
      */
     public function action_addupdate() {

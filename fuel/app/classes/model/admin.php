@@ -426,4 +426,52 @@ class Model_Admin extends Model_Abstract {
         $sql = "DELETE FROM {$table} WHERE {$cond}";
         return DB::query($sql)->execute();
     }
+    
+    /**
+     * Get all
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return array|bool Detail Order or false if error
+     */
+    public static function get_all($param) {
+        // Query
+        $query = DB::select(
+                        self::$_table_name . '.*'
+                )
+                ->from(self::$_table_name)
+        ;
+
+        // Filter
+        if (!empty($param['name'])) {
+            $query->where(self::$_table_name . '.name', 'LIKE', "%{$param['name']}%");
+        }
+
+        // Pagination
+        if (!empty($param['page']) && $param['limit']) {
+            $offset = ($param['page'] - 1) * $param['limit'];
+            $query->limit($param['limit'])->offset($offset);
+        }
+
+        // Sort
+        if (!empty($param['sort'])) {
+            if (!self::checkSort($param['sort'])) {
+                self::errorParamInvalid('sort');
+                return false;
+            }
+
+            $sortExplode = explode('-', $param['sort']);
+            if ($sortExplode[0] == 'created') {
+                $sortExplode[0] = self::$_table_name . '.created';
+            }
+            $query->order_by($sortExplode[0], $sortExplode[1]);
+        } else {
+            $query->order_by(self::$_table_name . '.id', 'DESC');
+        }
+
+        // Get data
+        $data = $query->execute()->as_array();
+
+        return $data;
+    }
 }
