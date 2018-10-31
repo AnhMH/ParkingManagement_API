@@ -84,6 +84,16 @@ class Model_Monthly_Card extends Model_Abstract {
         if (isset($param['disable'])) {
             $query->where(self::$_table_name . '.disable', '=', $param['disable']);
         }
+        if (!empty($param['is_expired'])) {
+            if ($param['is_expired'] == 1) {
+                $query->having('total_date', '<', 1);
+            } else {
+                $query->having('total_date', '>', 0);
+            }
+        }
+        if (!empty($param['expire_day'])) {
+            $query->having('total_date', '=', $param['expire_day']);
+        }
 
         // Pagination
         if (!empty($param['page']) && $param['limit']) {
