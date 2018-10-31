@@ -68,7 +68,8 @@ class Model_Admin extends Model_Abstract {
                 )), 'name', 'value');
                 $lastLogin = Model_System_Log::find('last', array(
                     'where' => array(
-                        'admin_id' => $login['id']
+                        'admin_id' => $login['id'],
+                        'type' => static::LOG_TYPE_ADMIN_LOGIN
                     )
                 ));
                 if (!empty($lastLogin) && empty($lastLogin['logout_time'])) {
@@ -286,6 +287,9 @@ class Model_Admin extends Model_Abstract {
         // Filter
         if (!empty($param['name'])) {
             $query->where(self::$_table_name . '.name', 'LIKE', "%{$param['name']}%");
+        }
+        if (!empty($param['type'])) {
+            $query->where(self::$_table_name . '.type', $param['type']);
         }
 
         // Pagination

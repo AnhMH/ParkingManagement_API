@@ -88,7 +88,7 @@ class Model_System_Log extends Model_Abstract {
             $query->where(self::$_table_name . '.created', '<=', self::date_to_val($param['log_create_to']));
         }
         if (!empty($param['adminname'])) {
-            $query->where('admin_name', 'LIKE', "%{$param['adminname']}%");
+            $query->where('admins.name', 'LIKE', "%{$param['adminname']}%");
         }
         if (!empty($param['type'])) {
             $query->where(self::$_table_name . '.type', 'IN', explode(',', $param['type']));
