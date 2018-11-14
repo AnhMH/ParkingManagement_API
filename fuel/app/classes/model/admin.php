@@ -152,6 +152,9 @@ class Model_Admin extends Model_Abstract {
         if (!empty($param['password'])) {
             $query->where(self::$_table_name.'.password', $param['password']);
         }        
+        if (!empty($param['id'])) {
+            $query->where(self::$_table_name.'.id', $param['id']);
+        }        
         
         // Get data
         $data = $query->execute()->offsetGet(0);
@@ -481,5 +484,61 @@ class Model_Admin extends Model_Abstract {
         $data = $query->execute()->as_array();
 
         return $data;
+    }
+    
+    /**
+     * Login Admin
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return array|bool Detail Admin or false if error
+     */
+    public static function get_login_by_id($param)
+    {
+        $login = array();
+        $currentTime = time();
+        $login = self::get_profile(array(
+            'id' => $param['id']
+        ));
+        
+        if (!empty($login)) {
+            if (empty($login['disable'])) {
+                $login['token'] = Model_Authenticate::addupdate(array(
+                    'user_id' => $login['id'],
+                    'regist_type' => 'admin',
+                    'update_token' => true
+                ));
+                $login['permission'] = \Lib\Arr::key_value(Model_Setting::get_detail(array(
+                    'type' => \Config::get('setting_type')['permission'],
+                    'admin_type' => $login['type']
+                )), 'name', 'value');
+                $lastLogin = Model_System_Log::find('last', array(
+                    'where' => array(
+                        'admin_id' => $login['id'],
+                        'type' => static::LOG_TYPE_ADMIN_LOGIN
+                    )
+                ));
+                if (!empty($lastLogin) && empty($lastLogin['logout_time'])) {
+                    $logoutTime = $currentTime;
+                    if ($currentTime - $lastLogin['login_time'] >= 8*3600) {
+                        $logoutTime = $lastLogin['login_time'] + 8*3600;
+                    }
+                    $lastLogin->set('logout_time', $logoutTime);
+                    $lastLogin->save();
+                }
+                $logParam = array(
+                    'detail' => 'Đăng nhập hệ thống',
+                    'admin_id' => $login['id'],
+                    'type' => static::LOG_TYPE_ADMIN_LOGIN,
+                    'login_time' => $currentTime
+                );
+                Model_System_Log::add_update($logParam);
+                return $login;
+            }
+            static::errorOther(static::ERROR_CODE_OTHER_1, 'User is disabled');
+            return false;
+        }
+        static::errorOther(static::ERROR_CODE_AUTH_ERROR, 'Email/Password');
+        return false;
     }
 }
