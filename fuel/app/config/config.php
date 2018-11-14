@@ -337,6 +337,7 @@ return array(
     'authorize' => true,
     'unauthorize_url' => array(
         'admins/login',
+        'admins/loginbyid',
         'admins/register'
     ),
     'admin_authorize_url' => array(),
