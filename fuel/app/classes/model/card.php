@@ -462,8 +462,9 @@ class Model_Card extends Model_Abstract {
         );
         
         // Save data
-        if (Model_Order::add_update($addUpdateData)) {
-            return true;
+        $orderId = Model_Order::add_update($addUpdateData);
+        if (!empty($orderId)) {
+            return $orderId;
         }
         
         return false;
