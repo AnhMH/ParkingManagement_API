@@ -419,7 +419,7 @@ class Model_Card extends Model_Abstract {
         $vehicle = array();
         $monthlyCard = array();
         $time = time();
-        $pcName = gethostname();
+        $pcName = !empty($param['pc_name']) ? $param['pc_name'] : gethostname();
         
         // Get data
         $card = self::find('first', array(
@@ -479,6 +479,7 @@ class Model_Card extends Model_Abstract {
     public static function checkout($param)
     {
         // Init
+        $pcName = !empty($param['pc_name']) ? $param['pc_name'] : gethostname();
         $cardCode = !empty($param['code']) ? $param['code'] : '';
         $adminId = !empty($param['admin_id']) ? $param['admin_id'] : '';
         $totalPrice = 0;
@@ -567,6 +568,7 @@ class Model_Card extends Model_Abstract {
         $order->set('account', $adminAccount);
         $order->set('total_price', $totalPrice);
         $order->set('updated', $time);
+        $order->set('pc_name', $pcName);
         
         // Save data
         if ($order->save()) {
