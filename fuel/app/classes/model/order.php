@@ -346,8 +346,8 @@ class Model_Order extends Model_Abstract {
         if (!empty($param['car_number'])) {
             $query->where(self::$_table_name . '.car_number', 'LIKE', "%{$param['car_number']}%");
         }
-        if (!empty($param['car_stt'])) {
-            $query->where(self::$_table_name . '.car_stt', 'LIKE', "%{$param['car_stt']}%");
+        if (!empty($param['card_stt'])) {
+            $query->where(self::$_table_name . '.card_stt', 'LIKE', "%{$param['card_stt']}%");
         }
         if (!empty($param['created_from'])) {
             $query->where(self::$_table_name . '.created', '>=', self::time_to_val($param['created_from']));

@@ -431,7 +431,19 @@ class Model_Card extends Model_Abstract {
             self::errorNotExist('card_code');
             return false;
         }
-        $monthlyCardId = !empty($card['monthly_card_id']) ? $card['monthly_card_id'] : '';
+        
+        // Check order
+        $checkOrder = self::find('first', array(
+            'where' => array(
+                'card_code' => $cardCode,
+                'checkout_time' => 0
+            )
+        ));
+        if (!empty($checkOrder)) {
+            self::errorDuplicate('card_code');
+            return false;
+        }
+        $monthlyCardId = !empty($card['monthly_card_id']) ? $card['monthly_card_id'] : 0;
         $monthlyCard = Model_Monthly_Card::find($monthlyCardId);
         $vehicleId = !empty($card['vehicle_id']) ? $card['vehicle_id'] : '';
         $vehicle = Model_Vehicle::find($vehicleId);
@@ -464,7 +476,10 @@ class Model_Card extends Model_Abstract {
         // Save data
         $orderId = Model_Order::add_update($addUpdateData);
         if (!empty($orderId)) {
-            return $orderId;
+            return array(
+                'order_id' => $orderId,
+                'monthly_card_id' => $monthlyCardId
+            );
         }
         
         return false;
@@ -522,7 +537,7 @@ class Model_Card extends Model_Abstract {
             return false;
         }
         $vehicleId = !empty($order['vehicle_id']) ? $order['vehicle_id'] : '';
-        $monthlyCardId = !empty($order['monthly_card_id']) ? $order['monthly_card_id'] : '';
+        $monthlyCardId = !empty($order['monthly_card_id']) ? $order['monthly_card_id'] : 0;
         $checkinTime = $order['checkin_time'];
         $admin = Model_Admin::find($adminId);
         $adminCheckoutName = !empty($admin['name']) ? $admin['name'] : '';
@@ -574,7 +589,8 @@ class Model_Card extends Model_Abstract {
         // Save data
         if ($order->save()) {
             return array(
-                'total_price' => $totalPrice
+                'total_price' => $totalPrice,
+                'monthly_card_id' => $monthlyCardId
             );
         }
         

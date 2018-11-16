@@ -106,6 +106,19 @@ class Model_Admin extends Model_Abstract {
     public static function logout($param)
     {
         $adminId = !empty($param['admin_id']) ? $param['admin_id'] : 0;
+        if (!empty($param['account']) && !empty($param['password'])) {
+            $checkAdmin = self::find('first', array(
+                'where' => array(
+                    'account' => $param['account'],
+                    'password' => $param['password']
+                )
+            ));
+            $checkAdminId = !empty($checkAdmin['id']) ? $checkAdmin['id'] : '';
+            if ($checkAdminId != $adminId) {
+                self::errorNotExist('admin_id');
+                return false;
+            }
+        }
         $logoutTime = time();
         $lastLogin = Model_System_Log::find('last', array(
             'where' => array(
@@ -137,9 +150,12 @@ class Model_Admin extends Model_Abstract {
     {
         // Query
         $query = DB::select(
-                self::$_table_name.'.*'
+                self::$_table_name.'.*',
+                array('admin_types.name', 'type_name')
             )
             ->from(self::$_table_name)
+            ->join('admin_types', 'LEFT')
+            ->on('admin_types.id', '=', self::$_table_name.'.type')
         ;
         
         // Filter
