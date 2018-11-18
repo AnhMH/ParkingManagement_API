@@ -433,7 +433,7 @@ class Model_Card extends Model_Abstract {
         }
         
         // Check order
-        $checkOrder = self::find('first', array(
+        $checkOrder = Model_Order::find('first', array(
             'where' => array(
                 'card_code' => $cardCode,
                 'checkout_time' => 0

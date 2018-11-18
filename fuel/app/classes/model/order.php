@@ -355,6 +355,18 @@ class Model_Order extends Model_Abstract {
         if (!empty($param['created_to'])) {
             $query->where(self::$_table_name . '.created', '<=', self::date_to_val($param['created_to']));
         }
+        if (!empty($param['admin_checkin_id'])) {
+            $query->where(self::$_table_name . '.admin_checkin_id', $param['admin_checkin_id']);
+        }
+        if (!empty($param['admin_checkout_id'])) {
+            $query->where(self::$_table_name . '.admin_checkout_id', $param['admin_checkout_id']);
+        }
+        if (!empty($param['get_car_survive'])) {
+            $query->where(self::$_table_name . '.checkout_time', 0);
+        }
+        if (!empty($param['get_car_lost_card'])) {
+            $query->where(self::$_table_name . '.is_card_lost', 1);
+        }
         if (!empty($param['card_type'])) {
             if ($param['card_type'] == 'normal') {
                 $query->where_open();
