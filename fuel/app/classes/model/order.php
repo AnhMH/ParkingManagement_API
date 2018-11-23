@@ -362,7 +362,10 @@ class Model_Order extends Model_Abstract {
             $query->where(self::$_table_name . '.admin_checkout_id', $param['admin_checkout_id']);
         }
         if (!empty($param['get_car_survive'])) {
+            $query->where_open();
             $query->where(self::$_table_name . '.checkout_time', 0);
+            $query->or_where(self::$_table_name . '.checkout_time', "IS", NULL);
+            $query->where_close();
         }
         if (!empty($param['get_car_lost_card'])) {
             $query->where(self::$_table_name . '.is_card_lost', 1);

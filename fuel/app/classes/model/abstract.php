@@ -27,29 +27,24 @@ class Model_Abstract extends Model {
     const ERROR_CODE_OTHER_3 = 1023;
     const ERROR_CODE_OTHER_4 = 1024;
     const ERROR_CODE_OTHER_5 = 1025;
-    
     const LOG_TYPE_ADMIN_LOGIN = 1;
     const LOG_TYPE_ADMIN_LOGOUT = 2;
     const LOG_TYPE_ADMIN_UPDATE = 3;
     const LOG_TYPE_ADMIN_CREATE = 4;
     const LOG_TYPE_ADMIN_DELETE = 5;
-    
     const LOG_TYPE_ADMIN_TYPE_UPDATE = 6;
     const LOG_TYPE_ADMIN_TYPE_CREATE = 7;
     const LOG_TYPE_ADMIN_TYPE_DELETE = 8;
-    
     const LOG_TYPE_MONTHLYCARD_CREATE = 9;
     const LOG_TYPE_MONTHLYCARD_UPDATE = 10;
     const LOG_TYPE_MONTHLYCARD_DELETE = 11;
     const LOG_TYPE_MONTHLYCARD_IMPORT = 12;
     const LOG_TYPE_MONTHLYCARD_EXPORT = 13;
-    
     const LOG_TYPE_CARD_CREATE = 14;
     const LOG_TYPE_CARD_UPDATE = 15;
     const LOG_TYPE_CARD_DELETE = 16;
     const LOG_TYPE_CARD_IMPORT = 17;
     const LOG_TYPE_CARD_EXPORT = 18;
-    
     const LOG_TYPE_UPDATE_PRICE_FORMULA1 = 19;
     const LOG_TYPE_UPDATE_PRICE_FORMULA2 = 20;
     const LOG_TYPE_UPDATE_PRICE_FORMULA3 = 21;
@@ -61,7 +56,6 @@ class Model_Abstract extends Model {
      *
      * @author thailh 
      */
-
     public static function _init() {
         if (\Lib\Util::os() != \Config::get('os')['webos'] && !empty(static::$_mobile_properties)) {
             static::$_properties = static::$_mobile_properties;
@@ -220,6 +214,9 @@ class Model_Abstract extends Model {
      * @return int Returns the integer.
      */
     public static function date_to_val($date) {
+        if (strpos($date, ':') !== false) {
+            return strtotime($date);
+        }
         return strtotime($date . ' 23:59:59');
     }
 
