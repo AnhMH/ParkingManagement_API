@@ -420,6 +420,7 @@ class Model_Card extends Model_Abstract {
         $monthlyCard = array();
         $time = time();
         $pcName = !empty($param['pc_name']) ? $param['pc_name'] : gethostname();
+        $orderId = 0;
         
         // Get data
         $card = self::find('first', array(
@@ -440,15 +441,28 @@ class Model_Card extends Model_Abstract {
             )
         ));
         if (!empty($checkOrder)) {
-            self::errorDuplicate('card_code');
-            return false;
+            $orderId = !empty($checkOrder['id']) ? $checkOrder['id'] : 0;
         }
+        
+        // Upload image
+        if (!empty($_FILES)) {
+            $uploadResult = \Lib\Util::uploadImage(); 
+            if ($uploadResult['status'] != 200) {
+                self::setError($uploadResult['error']);
+                return false;
+            }
+            $param['image_in_1'] = !empty($uploadResult['body']['image_in_1']) ? $uploadResult['body']['image_in_1'] : '';
+            $param['image_in_2'] = !empty($uploadResult['body']['image_in_2']) ? $uploadResult['body']['image_in_2'] : '';
+        }
+        
         $monthlyCardId = !empty($card['monthly_card_id']) ? $card['monthly_card_id'] : 0;
         $monthlyCard = Model_Monthly_Card::find($monthlyCardId);
         $vehicleId = !empty($card['vehicle_id']) ? $card['vehicle_id'] : '';
         $vehicle = Model_Vehicle::find($vehicleId);
+        $vehicleCode = !empty($vehicle['code']) ? $vehicle['code'] : '';
         $admin = Model_Admin::find($adminId);
         $addUpdateData = array(
+            'id' => $orderId,
             'card_id' => $card['id'],
             'card_code' => $cardCode,
             'card_stt' => $card['stt'],
@@ -457,7 +471,7 @@ class Model_Card extends Model_Abstract {
             'car_number' => !empty($monthlyCard['car_number']) ? $monthlyCard['car_number'] : '',
             'admin_checkin_id' => $adminId,
             'admin_checkin_name' => !empty($admin['name']) ? $admin['name'] : '',
-            'vehicle_code' => !empty($vehicle['code']) ? $vehicle['code'] : '',
+            'vehicle_code' => $vehicleCode,
             'admin_checkout_id' => '',
             'admin_checkout_name' => '',
             'monthly_card_id' => $monthlyCardId,
@@ -470,7 +484,10 @@ class Model_Card extends Model_Abstract {
             'created' => $time,
             'updated' => $time,
             'customer_name' => !empty($monthlyCard['customer_name']) ? $monthlyCard['customer_name'] : '',
-            'company' => !empty($monthlyCard['company']) ? $monthlyCard['company'] : ''
+            'company' => !empty($monthlyCard['company']) ? $monthlyCard['company'] : '',
+            'image_in_1' => !empty($param['image_in_1']) ? $param['image_in_1'] : '',
+            'image_in_2' => !empty($param['image_in_2']) ? $param['image_in_2'] : '',
+            'car_number_in' => !empty($param['car_number_in']) ? $param['car_number_in'] : '',
         );
         
         // Save data
@@ -478,7 +495,11 @@ class Model_Card extends Model_Abstract {
         if (!empty($orderId)) {
             return array(
                 'order_id' => $orderId,
-                'monthly_card_id' => $monthlyCardId
+                'monthly_card_id' => $monthlyCardId,
+                'vehilce_code' => $vehicleCode,
+                'card_stt' => $card['stt'],
+                'customer_name' => !empty($monthlyCard['customer_name']) ? $monthlyCard['customer_name'] : '',
+                'car_number' => !empty($monthlyCard['car_number']) ? $monthlyCard['car_number'] : '',
             );
         }
         
@@ -536,12 +557,27 @@ class Model_Card extends Model_Abstract {
             self::errorNotExist('checkin_id');
             return false;
         }
+        
+        // Upload image
+        if (!empty($_FILES)) {
+            $uploadResult = \Lib\Util::uploadImage(); 
+            if ($uploadResult['status'] != 200) {
+                self::setError($uploadResult['error']);
+                return false;
+            }
+            $param['image_out_1'] = !empty($uploadResult['body']['image_out_1']) ? $uploadResult['body']['image_out_1'] : '';
+            $param['image_out_2'] = !empty($uploadResult['body']['image_out_2']) ? $uploadResult['body']['image_out_2'] : '';
+        }
+        
         $vehicleId = !empty($order['vehicle_id']) ? $order['vehicle_id'] : '';
         $monthlyCardId = !empty($order['monthly_card_id']) ? $order['monthly_card_id'] : 0;
         $checkinTime = $order['checkin_time'];
         $admin = Model_Admin::find($adminId);
         $adminCheckoutName = !empty($admin['name']) ? $admin['name'] : '';
         $adminAccount = !empty($admin['account']) ? $admin['account'] : '';
+        $image1 = !empty($param['image_out_1']) ? $param['image_out_1'] : '';
+        $image2 = !empty($param['image_out_2']) ? $param['image_out_2'] : '';
+        $carNumberOut = !empty($param['car_number_out']) ? $param['car_number_out'] : '';
         
         $settings = DB::select(
                         'settings.*'
@@ -585,12 +621,23 @@ class Model_Card extends Model_Abstract {
         $order->set('total_price', $totalPrice);
         $order->set('updated', $time);
         $order->set('pc_name', $pcName);
+        $order->set('image_out_1', $image1);
+        $order->set('image_out_2', $image2);
+        $order->set('car_number_out', $carNumberOut);
         
         // Save data
         if ($order->save()) {
             return array(
                 'total_price' => $totalPrice,
-                'monthly_card_id' => $monthlyCardId
+                'monthly_card_id' => $monthlyCardId,
+                'image_in_1' => $order['image_in_1'],
+                'image_in_2' => $order['image_in_2'],
+                'order_id' => $order['id'],
+                'card_stt' => $order['card_stt'],
+                'checkin_time' => $order['checkin_time'],
+                'customer_name' => $order['customer_name'],
+                'car_number_in' => $order['car_number_in'],
+                'car_number' => $order['car_number'],
             );
         }
         

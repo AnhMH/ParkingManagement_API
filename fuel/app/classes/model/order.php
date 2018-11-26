@@ -38,7 +38,13 @@ class Model_Order extends Model_Abstract {
         'disable',
         'customer_name',
         'company',
-        'notes'
+        'notes',
+        'image_in_1',
+        'image_in_2',
+        'image_out_1',
+        'image_out_2',
+        'car_number_in',
+        'car_number_out'
     );
 
     protected static $_observers = array(
@@ -94,7 +100,7 @@ class Model_Order extends Model_Abstract {
         if (!empty($param['checkin_time'])) {
             $self->set('checkin_time', $param['checkin_time']);
         }
-        if (!empty($param['checkout_time'])) {
+        if (isset($param['checkout_time'])) {
             $self->set('checkout_time', $param['checkout_time']);
         }
         if (!empty($param['car_number'])) {
@@ -150,6 +156,24 @@ class Model_Order extends Model_Abstract {
         }
         if (!empty($param['notes'])) {
             $self->set('notes', $param['notes']);
+        }
+        if (!empty($param['image_in_1'])) {
+            $self->set('image_in_1', $param['image_in_1']);
+        }
+        if (!empty($param['image_in_2'])) {
+            $self->set('image_in_2', $param['image_in_2']);
+        }
+        if (!empty($param['car_number_in'])) {
+            $self->set('car_number_in', $param['car_number_in']);
+        }
+        if (!empty($param['image_out_1'])) {
+            $self->set('image_out_1', $param['image_out_1']);
+        }
+        if (!empty($param['image_out_2'])) {
+            $self->set('image_out_2', $param['image_out_2']);
+        }
+        if (!empty($param['car_number_out'])) {
+            $self->set('car_number_out', $param['car_number_out']);
         }
         
         // Save data
