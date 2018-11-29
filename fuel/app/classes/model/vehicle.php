@@ -56,6 +56,12 @@ class Model_Vehicle extends Model_Abstract {
         if (!empty($param['name'])) {
             $query->where(self::$_table_name . '.name', 'LIKE', "%{$param['name']}%");
         }
+        if (!empty($param['card_type'])) {
+            $query->where(self::$_table_name . '.card_type',$param['card_type']);
+        }
+        if (!empty($param['type'])) {
+            $query->where(self::$_table_name . '.type',$param['type']);
+        }
 
         // Pagination
         if (!empty($param['page']) && $param['limit']) {
@@ -107,6 +113,12 @@ class Model_Vehicle extends Model_Abstract {
         // Filter
         if (!empty($param['name'])) {
             $query->where(self::$_table_name . '.name', 'LIKE', "%{$param['name']}%");
+        }
+        if (!empty($param['card_type'])) {
+            $query->where(self::$_table_name . '.card_type',$param['card_type']);
+        }
+        if (!empty($param['type'])) {
+            $query->where(self::$_table_name . '.type',$param['type']);
         }
 
         // Pagination
