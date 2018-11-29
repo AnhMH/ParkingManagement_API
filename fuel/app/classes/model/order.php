@@ -513,17 +513,18 @@ class Model_Order extends Model_Abstract {
                         DB::expr("SUM(CASE WHEN checkin_time > 0 THEN 1 ELSE 0 END) as total_checkin"),
                         DB::expr("SUM(CASE WHEN checkout_time > 0 THEN 1 ELSE 0 END) as total_checkout"),
                         DB::expr("SUM(total_price) as total_price"),
-                        array('vehicles.name', 'vehicle_name')
+                        array('vehicles.type', 'vehicle_type')
                 )
                 ->from(self::$_table_name)
-                ->join('vehicles', 'LEFT')
+                ->join('vehicles')
                 ->on(self::$_table_name.'.vehicle_id', '=', 'vehicles.id')
-                ->where_open()
-                ->where(self::$_table_name.'.monthly_card_id', 0)
-                ->or_where(self::$_table_name.'.monthly_card_id', '')
-                ->or_where(self::$_table_name.'.monthly_card_id', 'IS', NULL)
-                ->where_close()
-                ->group_by(self::$_table_name.'.vehicle_id')
+                ->where('vehicles.card_type', 1)
+//                ->where_open()
+//                ->where(self::$_table_name.'.monthly_card_id', 0)
+//                ->or_where(self::$_table_name.'.monthly_card_id', '')
+//                ->or_where(self::$_table_name.'.monthly_card_id', 'IS', NULL)
+//                ->where_close()
+                ->group_by('vehicles.type')
             ;
             if (!empty($param['admin'])) {
                 $query->where_open();
@@ -542,6 +543,7 @@ class Model_Order extends Model_Abstract {
                 $query->where(self::$_table_name.'.created', '<=', self::date_to_val($param['option2_to']));
             }
             $card = $query->execute()->as_array();
+            $card = \Lib\Arr::key_values($card, 'vehicle_type');
         }
         
         if (empty($cardType) || $cardType == 2) {
@@ -549,13 +551,14 @@ class Model_Order extends Model_Abstract {
                         DB::expr("SUM(CASE WHEN checkin_time > 0 THEN 1 ELSE 0 END) as total_checkin"),
                         DB::expr("SUM(CASE WHEN checkout_time > 0 THEN 1 ELSE 0 END) as total_checkout"),
                         DB::expr("SUM(IFNULL(total_price,0)) as total_price"),
-                        array('vehicles.name', 'vehicle_name')
+                        array('vehicles.type', 'vehicle_type')
                 )
                 ->from(self::$_table_name)
-                ->join('vehicles', 'LEFT')
+                ->join('vehicles')
                 ->on(self::$_table_name.'.vehicle_id', '=', 'vehicles.id')
-                ->where(self::$_table_name.'.monthly_card_id', '>', 0)
-                ->group_by(self::$_table_name.'.vehicle_id')
+                ->where('vehicles.card_type', 2)
+//                ->where(self::$_table_name.'.monthly_card_id', '>', 0)
+                ->group_by('vehicles.type')
             ;
             if (!empty($param['admin'])) {
                 $query->where_open();
@@ -574,6 +577,7 @@ class Model_Order extends Model_Abstract {
                 $query->where(self::$_table_name.'.created', '<=', self::date_to_val($param['option2_to']));
             }
             $monthlyCard = $query->execute()->as_array();
+            $monthlyCard = \Lib\Arr::key_values($monthlyCard, 'vehicle_type');
         }
         
         $data = array(
