@@ -18,7 +18,9 @@ class Model_Vehicle extends Model_Abstract {
         'name',
         'code',
         'monthly_cost',
-        'limit'
+        'limit',
+        'type',
+        'card_type'
     );
 
     protected static $_observers = array(
@@ -187,6 +189,12 @@ class Model_Vehicle extends Model_Abstract {
         }
         if (!empty($param['limit'])) {
             $self->set('limit', $param['limit']);
+        }
+        if (!empty($param['type'])) {
+            $self->set('type', $param['type']);
+        }
+        if (!empty($param['card_type'])) {
+            $self->set('card_type', $param['card_type']);
         }
         
         // Save data
