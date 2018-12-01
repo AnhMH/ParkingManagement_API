@@ -15,6 +15,8 @@ class Model_Order extends Model_Abstract {
     /** @var array $_properties field of table */
     protected static $_properties = array(
         'id',
+        'order_id',
+        'area_id',
         'card_id',
         'card_code',
         'card_stt',
@@ -585,5 +587,82 @@ class Model_Order extends Model_Abstract {
             'monthly_card' => $monthlyCard
         );
         return $data;
+    }
+    
+    /**
+     * Add update info
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return int|bool User ID or false if error
+     */
+    public static function batch_insert($param)
+    {
+        $data = !empty($param['data']) ? json_decode($param['data'], true) : array();
+        $addUpdateData = array();
+        if (!empty($data)) {
+            foreach ($data as $val) {
+                $addUpdateData[] = array(
+                    'area_id' => isset($val['area_id']) ? $val['area_id'] : '',
+                    'order_id' => isset($val['order_id']) ? $val['order_id'] : '',
+                    'card_id' => isset($val['card_id']) ? $val['card_id'] : '',
+                    'card_code' => isset($val['card_code']) ? $val['card_code'] : '',
+                    'card_stt' => isset($val['card_stt']) ? $val['card_stt'] : '',
+                    'checkin_time' => isset($val['checkin_time']) ? $val['checkin_time'] : '',
+                    'checkout_time' => isset($val['checkout_time']) ? $val['checkout_time'] : '',
+                    'car_number' => isset($val['car_number']) ? $val['car_number'] : '',
+                    'admin_checkin_id' => isset($val['admin_checkin_id']) ? $val['admin_checkin_id'] : '',
+                    'admin_checkin_name' => isset($val['admin_checkin_name']) ? $val['admin_checkin_name'] : '',
+                    'vehicle_code' => isset($val['vehicle_code']) ? $val['vehicle_code'] : '',
+                    'monthly_card_id' => isset($val['monthly_card_id']) ? $val['monthly_card_id'] : '',
+                    'vehicle_id' => isset($val['vehicle_id']) ? $val['vehicle_id'] : '',
+                    'vehicle_name' => isset($val['vehicle_name']) ? $val['vehicle_name'] : '',
+                    'is_card_lost' => isset($val['is_card_lost']) ? $val['is_card_lost'] : '',
+                    'total_price' => isset($val['total_price']) ? $val['total_price'] : '',
+                    'pc_name' => isset($val['pc_name']) ? $val['pc_name'] : '',
+                    'account' => isset($val['account']) ? $val['account'] : '',
+                    'created' => isset($val['created']) ? $val['created'] : '',
+                    'updated' => isset($val['updated']) ? $val['updated'] : '',
+                    'customer_name' => isset($val['customer_name']) ? $val['customer_name'] : '',
+                    'company' => isset($val['company']) ? $val['company'] : '',
+                    'car_number_in' => isset($param['car_number_in']) ? $param['car_number_in'] : '',
+                    'admin_checkout_id' => isset($param['admin_checkout_id']) ? $param['admin_checkout_id'] : '',
+                    'admin_checkout_name' => isset($param['admin_checkout_name']) ? $param['admin_checkout_name'] : '',
+                    'car_number_out' => isset($param['car_number_out']) ? $param['car_number_out'] : ''
+                );
+            }
+            if (!empty($addUpdateData)) {
+                self::batchInsert('orders', $addUpdateData, array(
+                    'area_id' => DB::expr('VALUES(area_id)'),
+                    'order_id' => DB::expr('VALUES(order_id)'),
+                    'card_id' => DB::expr('VALUES(card_id)'),
+                    'card_code' => DB::expr('VALUES(card_code)'),
+                    'card_stt' => DB::expr('VALUES(card_stt)'),
+                    'checkin_time' => DB::expr('VALUES(checkin_time)'),
+                    'checkout_time' => DB::expr('VALUES(checkout_time)'),
+                    'car_number' => DB::expr('VALUES(car_number)'),
+                    'admin_checkin_id' => DB::expr('VALUES(admin_checkin_id)'),
+                    'admin_checkin_name' => DB::expr('VALUES(admin_checkin_name)'),
+                    'vehicle_code' => DB::expr('VALUES(vehicle_code)'),
+                    'monthly_card_id' => DB::expr('VALUES(monthly_card_id)'),
+                    'vehicle_id' => DB::expr('VALUES(vehicle_id)'),
+                    'vehicle_name' => DB::expr('VALUES(vehicle_name)'),
+                    'is_card_lost' => DB::expr('VALUES(is_card_lost)'),
+                    'total_price' => DB::expr('VALUES(total_price)'),
+                    'pc_name' => DB::expr('VALUES(pc_name)'),
+                    'account' => DB::expr('VALUES(account)'),
+                    'created' => DB::expr('VALUES(created)'),
+                    'updated' => DB::expr('VALUES(updated)'),
+                    'customer_name' => DB::expr('VALUES(customer_name)'),
+                    'company' => DB::expr('VALUES(company)'),
+                    'car_number_in' => DB::expr('VALUES(car_number_in)'),
+                    'admin_checkout_id' => DB::expr('VALUES(admin_checkout_id)'),
+                    'admin_checkout_name' => DB::expr('VALUES(admin_checkout_name)'),
+                    'car_number_out' => DB::expr('VALUES(car_number_out)'),
+                ));
+                return true;
+            }
+        }
+        return false;
     }
 }

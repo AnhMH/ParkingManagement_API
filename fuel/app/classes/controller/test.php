@@ -15,14 +15,7 @@ class Controller_Test extends \Controller_App {
      * @return  Response
      */
     public function action_index() {
-        $param = array(
-            'code' => '2222'
-        );
-        $time1 = time();
-        $data = Model_Card::checkout($param);
-        echo time() - $time1;
-        echo '<pre>';
-        print_r($data);
+        echo phpinfo();
         die();
     }
 

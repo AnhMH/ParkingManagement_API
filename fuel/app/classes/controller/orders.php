@@ -28,4 +28,11 @@ class Controller_Orders extends \Controller_App {
     public function action_revenue() {
         return \Bus\Orders_Revenue::getInstance()->execute();
     }
+    
+    /**
+     * Batch insert
+     */
+    public function action_batchinsert() {
+        return \Bus\Orders_BatchInsert::getInstance()->execute();
+    }
 }
