@@ -222,6 +222,7 @@ class Model_Monthly_Card extends Model_Abstract {
                 )
             ));
             if (!empty($card)) {
+                $vehicleId = $card['vehicle_id'];
                 $cardId = $card['id'];
                 $check = self::find('first', array(
                     'where' => array(
@@ -234,14 +235,23 @@ class Model_Monthly_Card extends Model_Abstract {
                     return false;
                 }
             } else {
-                $cardId = Model_Card::add_update(array(
-                    'code' => $param['card_code'],
-                    'admin_id' => $adminId,
-                    'vehicle_id' => $vehicleId
-                ));
+                self::errorOther(static::ERROR_CODE_OTHER_1, 'card_id', 'Thẻ chưa được đăng kí vào hệ thống');
+                return false;
             }
         } elseif (!empty($param['card_id'])) {
             $cardId = $param['card_id'];
+        }
+        
+        $vehicle = Model_Vehicle::find($vehicleId);
+        if (empty($vehicle)) {
+            self::errorOther(static::ERROR_CODE_OTHER_1, 'vehicle_id', 'Bạn chưa chọn loại xe');
+            return false;
+        } else {
+            $vehicleCardType = !empty($vehicle['card_type']) ? $vehicle['card_type'] : '';
+            if ($vehicleCardType != 2) {
+                self::errorOther(static::ERROR_CODE_OTHER_1, 'vehicle_card_type', 'Loại thẻ này không dành cho xe tháng');
+                return false;
+            }
         }
         
         // Set data
@@ -615,5 +625,36 @@ class Model_Monthly_Card extends Model_Abstract {
         } else {
             return false;
         }
+    }
+    
+    /**
+     * Get card detail
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return array|bool Detail Order or false if error
+     */
+    public static function get_card_detail($param) {
+        // Query
+        $query = DB::select(
+                        'cards.stt',
+                        'cards.vehicle_id',
+                        'vehicles.monthly_cost'
+                )
+                ->from('cards')
+                ->join('vehicles')
+                ->on('vehicles.id', '=', 'cards.vehicle_id')
+                ->where('cards.code', $param['card_code'])
+        ;
+
+        // Get data
+        $data = $query->execute()->offsetGet(0);
+        
+        if (empty($data)) {
+            self::errorNotExist('card_code');
+            return false;
+        }
+        
+        return $data;
     }
 }

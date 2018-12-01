@@ -56,4 +56,11 @@ class Controller_MonthlyCards extends \Controller_App {
     public function action_renewal() {
         return \Bus\MonthlyCards_Renewal::getInstance()->execute();
     }
+    
+    /**
+     * MonthlyCard renewal
+     */
+    public function action_getcarddetail() {
+        return \Bus\MonthlyCards_GetCardDetail::getInstance()->execute();
+    }
 }
