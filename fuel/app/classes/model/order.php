@@ -625,10 +625,10 @@ class Model_Order extends Model_Abstract {
                     'updated' => isset($val['updated']) ? $val['updated'] : '',
                     'customer_name' => isset($val['customer_name']) ? $val['customer_name'] : '',
                     'company' => isset($val['company']) ? $val['company'] : '',
-                    'car_number_in' => isset($param['car_number_in']) ? $param['car_number_in'] : '',
-                    'admin_checkout_id' => isset($param['admin_checkout_id']) ? $param['admin_checkout_id'] : '',
-                    'admin_checkout_name' => isset($param['admin_checkout_name']) ? $param['admin_checkout_name'] : '',
-                    'car_number_out' => isset($param['car_number_out']) ? $param['car_number_out'] : ''
+                    'car_number_in' => isset($val['car_number_in']) ? $val['car_number_in'] : '',
+                    'admin_checkout_id' => isset($val['admin_checkout_id']) ? $val['admin_checkout_id'] : '',
+                    'admin_checkout_name' => isset($val['admin_checkout_name']) ? $val['admin_checkout_name'] : '',
+                    'car_number_out' => isset($val['car_number_out']) ? $val['car_number_out'] : ''
                 );
             }
             if (!empty($addUpdateData)) {
