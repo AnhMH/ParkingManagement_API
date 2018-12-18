@@ -598,38 +598,41 @@ class Model_Order extends Model_Abstract {
      */
     public static function batch_insert($param)
     {
-        $data = !empty($param['data']) ? json_decode($param['data'], true) : array();
         $addUpdateData = array();
-        if (!empty($data)) {
-            foreach ($data as $val) {
-                $addUpdateData[] = array(
-                    'area_id' => isset($val['area_id']) ? $val['area_id'] : '',
-                    'order_id' => isset($val['order_id']) ? $val['order_id'] : '',
-                    'card_id' => isset($val['card_id']) ? $val['card_id'] : '',
-                    'card_code' => isset($val['card_code']) ? $val['card_code'] : '',
-                    'card_stt' => isset($val['card_stt']) ? $val['card_stt'] : '',
-                    'checkin_time' => !empty($val['checkin_time']) ? self::time_to_val($val['checkin_time']) : '',
-                    'checkout_time' => !empty($val['checkout_time']) ? self::time_to_val($val['checkout_time']) : '',
-                    'car_number' => isset($val['car_number']) ? $val['car_number'] : '',
-                    'admin_checkin_id' => isset($val['admin_checkin_id']) ? $val['admin_checkin_id'] : '',
-                    'admin_checkin_name' => isset($val['admin_checkin_name']) ? $val['admin_checkin_name'] : '',
-                    'vehicle_code' => isset($val['vehicle_code']) ? $val['vehicle_code'] : '',
-                    'monthly_card_id' => isset($val['monthly_card_id']) ? $val['monthly_card_id'] : '',
-                    'vehicle_id' => isset($val['vehicle_id']) ? $val['vehicle_id'] : '',
-                    'vehicle_name' => isset($val['vehicle_name']) ? $val['vehicle_name'] : '',
-                    'is_card_lost' => isset($val['is_card_lost']) ? $val['is_card_lost'] : '',
-                    'total_price' => isset($val['total_price']) ? $val['total_price'] : '',
-                    'pc_name' => isset($val['pc_name']) ? $val['pc_name'] : '',
-                    'account' => isset($val['account']) ? $val['account'] : '',
-                    'created' => !empty($val['created']) ? self::time_to_val($val['created']) : '',
-                    'updated' => !empty($val['updated']) ? self::time_to_val($val['updated']) : '',
-                    'customer_name' => isset($val['customer_name']) ? $val['customer_name'] : '',
-                    'company' => isset($val['company']) ? $val['company'] : '',
-                    'car_number_in' => isset($val['car_number_in']) ? $val['car_number_in'] : '',
-                    'admin_checkout_id' => isset($val['admin_checkout_id']) ? $val['admin_checkout_id'] : '',
-                    'admin_checkout_name' => isset($val['admin_checkout_name']) ? $val['admin_checkout_name'] : '',
-                    'car_number_out' => isset($val['car_number_out']) ? $val['car_number_out'] : ''
-                );
+        $check = 'data';
+        if (!empty($param)) {
+            foreach ($param as $k => $v) {
+                if (strpos($k, $check) !== false) {
+                    $val = json_decode($v, true);
+                    $addUpdateData[] = array(
+                        'area_id' => isset($val['area_id']) ? $val['area_id'] : '',
+                        'order_id' => isset($val['order_id']) ? $val['order_id'] : '',
+                        'card_id' => isset($val['card_id']) ? $val['card_id'] : '',
+                        'card_code' => isset($val['card_code']) ? $val['card_code'] : '',
+                        'card_stt' => isset($val['card_stt']) ? $val['card_stt'] : '',
+                        'checkin_time' => !empty($val['checkin_time']) ? self::time_to_val($val['checkin_time']) : '',
+                        'checkout_time' => !empty($val['checkout_time']) ? self::time_to_val($val['checkout_time']) : '',
+                        'car_number' => isset($val['car_number']) ? $val['car_number'] : '',
+                        'admin_checkin_id' => isset($val['admin_checkin_id']) ? $val['admin_checkin_id'] : '',
+                        'admin_checkin_name' => isset($val['admin_checkin_name']) ? $val['admin_checkin_name'] : '',
+                        'vehicle_code' => isset($val['vehicle_code']) ? $val['vehicle_code'] : '',
+                        'monthly_card_id' => isset($val['monthly_card_id']) ? $val['monthly_card_id'] : '',
+                        'vehicle_id' => isset($val['vehicle_id']) ? $val['vehicle_id'] : '',
+                        'vehicle_name' => isset($val['vehicle_name']) ? $val['vehicle_name'] : '',
+                        'is_card_lost' => isset($val['is_card_lost']) ? $val['is_card_lost'] : '',
+                        'total_price' => isset($val['total_price']) ? $val['total_price'] : '',
+                        'pc_name' => isset($val['pc_name']) ? $val['pc_name'] : '',
+                        'account' => isset($val['account']) ? $val['account'] : '',
+                        'created' => !empty($val['created']) ? self::time_to_val($val['created']) : '',
+                        'updated' => !empty($val['updated']) ? self::time_to_val($val['updated']) : '',
+                        'customer_name' => isset($val['customer_name']) ? $val['customer_name'] : '',
+                        'company' => isset($val['company']) ? $val['company'] : '',
+                        'car_number_in' => isset($val['car_number_in']) ? $val['car_number_in'] : '',
+                        'admin_checkout_id' => isset($val['admin_checkout_id']) ? $val['admin_checkout_id'] : '',
+                        'admin_checkout_name' => isset($val['admin_checkout_name']) ? $val['admin_checkout_name'] : '',
+                        'car_number_out' => isset($val['car_number_out']) ? $val['car_number_out'] : ''
+                    );
+                }
             }
             if (!empty($addUpdateData)) {
                 self::batchInsert('orders', $addUpdateData, array(
