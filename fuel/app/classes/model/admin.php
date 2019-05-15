@@ -192,55 +192,8 @@ class Model_Admin extends Model_Abstract {
      */
     public static function update_profile($param)
     {
-        $adminId = !empty($param['admin_id']) ? $param['admin_id'] : '';
-        $admin = self::find($adminId);
-        if (empty($admin)) {
-            self::errorNotExist('admin_id', $adminId);
-            return false;
-        }
-        
-        // Upload image
-        if (!empty($_FILES)) {
-            $uploadResult = \Lib\Util::uploadImage(); 
-            if ($uploadResult['status'] != 200) {
-                self::setError($uploadResult['error']);
-                return false;
-            }
-            $param['avatar'] = !empty($uploadResult['body']['avatar']) ? $uploadResult['body']['avatar'] : '';
-        }
-        
-        // Set data
-        if (!empty($param['email'])) {
-            $admin->set('email', $param['email']);
-        }
-        if (!empty($param['address'])) {
-            $admin->set('address', $param['address']);
-        }
-        if (!empty($param['tel'])) {
-            $admin->set('tel', $param['tel']);
-        }
-        if (!empty($param['avatar'])) {
-            $admin->set('avatar', $param['avatar']);
-        }
-        if (!empty($param['website'])) {
-            $admin->set('website', $param['website']);
-        }
-        if (!empty($param['facebook'])) {
-            $admin->set('facebook', $param['facebook']);
-        }
-        if (!empty($param['description'])) {
-            $admin->set('description', $param['description']);
-        }
-        
-        // Save data
-        if ($admin->save()) {
-            $admin['token'] = Model_Authenticate::addupdate(array(
-                'user_id' => $adminId,
-                'regist_type' => 'admin'
-            ));
-            return $admin;
-        }
-        return false;
+        $param['update_profile'] = 1;
+        return self::add_update($param);
     }
     
     /**
@@ -417,6 +370,17 @@ class Model_Admin extends Model_Abstract {
                 'type' => !empty($new) ? static::LOG_TYPE_ADMIN_CREATE : static::LOG_TYPE_ADMIN_UPDATE
             );
             Model_System_Log::add_update($logParam);
+            if (!empty($param['update_profile'])) {
+                $self['token'] = Model_Authenticate::addupdate(array(
+                    'user_id' => $adminId,
+                    'regist_type' => 'admin'
+                ));
+                $self['permission'] = \Lib\Arr::key_value(Model_Setting::get_detail(array(
+                    'type' => \Config::get('setting_type')['permission'],
+                    'admin_type' => $self['type']
+                )), 'name', 'value');
+                return $self;
+            }
             return $self->id;
         }
         
