@@ -131,6 +131,14 @@ class Model_Admin_Type extends Model_Abstract {
 
         // Get data
         $data = $query->execute()->as_array();
+        $data[] = array(
+            'id' => '-1',
+            'name' => 'Admin'
+        );
+        $data[] = array(
+            'id' => '-2',
+            'name' => 'Nhân viên'
+        );
         return $data;
     }
     
