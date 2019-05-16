@@ -360,6 +360,25 @@ class Model_Admin extends Model_Abstract {
             if (empty($self->id)) {
                 $self->id = self::cached_object($self)->_original['id'];
             }
+            // Admin admin_projects
+            if (!empty($param['projects'])) {
+                $sql = "DELETE FROM admin_projects WHERE admin_id = ".$self->id;
+                DB::query($sql)->execute();
+                $projects = json_decode($param['projects'], true);
+                $projectData = array();
+                foreach ($projects as $k => $v) {
+                    $projectData[] = array(
+                        'admin_id' => $self->id,
+                        'company_id' => $v,
+                        'project_id' => $k,
+                        'disable' => 0
+                    );
+                }
+                if (!empty($projectData)) {
+                    self::batchInsert('admin_projects', $projectData);
+                }
+            }
+            
             $logData = array();
             foreach (self::$_properties as $val) {
                 $logData[$val] = $self[$val];
@@ -399,6 +418,15 @@ class Model_Admin extends Model_Abstract {
         $data = array();
         
         $data = self::find($param['id']);
+        
+        if (empty($data)) {
+            self::errorNotExist('admin_id');
+            return false;
+        }
+        
+        $data['projects'] = Model_Admin_Project::get_all(array(
+            'admin_id' => $param['id']
+        ));
         
         return $data;
     }
@@ -520,5 +548,30 @@ class Model_Admin extends Model_Abstract {
         }
         static::errorOther(static::ERROR_CODE_AUTH_ERROR, 'Email/Password');
         return false;
+    }
+    
+    /**
+     * Get options
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return array|bool Detail Admin or false if error
+     */
+    public static function get_options($param)
+    {
+        // Init
+        $data = array();
+        
+        // Get admin types
+        $data['admin_type'] = Model_Admin_Type::get_all(array());
+        
+        // Get companies
+        $data['companies'] = Model_Company::get_all(array());
+        
+        // Get projects
+        $data['projects'] = Model_Project::get_all(array());
+        
+        // Return
+        return $data;
     }
 }

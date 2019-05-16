@@ -1,4 +1,4 @@
-#Add companies
+# Add companies
 CREATE TABLE `pm`.`companies` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NULL,
@@ -8,7 +8,7 @@ CREATE TABLE `pm`.`companies` (
   `updated` INT NULL,
   PRIMARY KEY (`id`));
 
-#Add projects
+# Add projects
 CREATE TABLE `pm`.`projects` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `company_id` INT NULL,
@@ -18,3 +18,15 @@ CREATE TABLE `pm`.`projects` (
   `created` INT NULL,
   `updated` INT NULL,
   PRIMARY KEY (`id`));
+
+# Add admin_projects
+CREATE TABLE `pm`.`admin_projects` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `admin_id` INT NULL,
+  `company_id` INT NULL,
+  `project_id` INT NULL,
+  `disable` TINYINT(1) NULL,
+  `created` INT NULL,
+  `updated` INT NULL,
+  PRIMARY KEY (`id`));
+

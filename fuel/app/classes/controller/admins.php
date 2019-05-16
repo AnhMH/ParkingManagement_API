@@ -76,4 +76,11 @@ class Controller_Admins extends \Controller_App {
     public function action_disable() {
         return \Bus\Admins_Disable::getInstance()->execute();
     }
+    
+    /**
+     * Admin get options
+     */
+    public function action_getoptions() {
+        return \Bus\Admins_GetOptions::getInstance()->execute();
+    }
 }
