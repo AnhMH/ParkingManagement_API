@@ -551,6 +551,9 @@ class Model_Order extends Model_Abstract {
             if (!empty($param['option2_to'])) {
                 $query->where(self::$_table_name.'.created', '<=', self::date_to_val($param['option2_to']));
             }
+            if (!empty($param['project_id'])) {
+                $query->where(self::$_table_name.'.project_id', $param['project_id']);
+            }
             $card = $query->execute()->as_array();
             $card = \Lib\Arr::key_values($card, 'vehicle_type');
         }
@@ -584,6 +587,9 @@ class Model_Order extends Model_Abstract {
             }
             if (!empty($param['option2_to'])) {
                 $query->where(self::$_table_name.'.created', '<=', self::date_to_val($param['option2_to']));
+            }
+            if (!empty($param['project_id'])) {
+                $query->where(self::$_table_name.'.project_id', $param['project_id']);
             }
             $monthlyCard = $query->execute()->as_array();
             $monthlyCard = \Lib\Arr::key_values($monthlyCard, 'vehicle_type');
