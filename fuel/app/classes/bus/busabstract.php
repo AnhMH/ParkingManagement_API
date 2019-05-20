@@ -341,7 +341,7 @@ abstract class BusAbstract {
         if (empty($data['page']) && !empty($data['limit'])) {
             $data['page'] = 1;
         }
-        
+        \LogLib::info('Request data', __METHOD__, $data);
         $operateDB = $this->operateDB($data);
         if ($operateDB === false) {
             if ($this->_exception != null) {

@@ -66,6 +66,23 @@ class Model_Admin extends Model_Abstract {
                     'type' => \Config::get('setting_type')['permission'],
                     'admin_type' => $login['type']
                 )), 'name', 'value');
+                $adminProjects = Model_Admin_Project::get_all(array(
+                    'admin_id' => $login['id'],
+                    'get_project_name' => 1
+                ));
+                $projects = array();
+                if (!empty($adminProjects)) {
+                    foreach ($adminProjects as $p) {
+                        if (empty($projects[$p['company_id']])) {
+                            $projects[$p['company_id']] = array(
+                                'id' => $p['company_id'],
+                                'name' => $p['company_name']
+                            );
+                        }
+                        $projects[$p['company_id']]['data'][] = $p;
+                    }
+                }
+                $login['projects'] = $projects;
                 $lastLogin = Model_System_Log::find('last', array(
                     'where' => array(
                         'admin_id' => $login['id'],

@@ -51,6 +51,17 @@ class Model_Admin_Project extends Model_Abstract {
                 )
                 ->from(self::$_table_name)
         ;
+        
+        if (!empty($param['get_project_name'])) {
+            $query->select(
+                    array('companies.name', 'company_name'),
+                    array('projects.name', 'project_name')
+            );
+            $query->join('companies', 'LEFT')
+                    ->on('companies.id', '=', self::$_table_name.'.company_id')
+                    ->join('projects', 'LEFT')
+                    ->on('projects.id', '=', self::$_table_name.'.project_id');
+        }
 
         // Filter
         if (!empty($param['admin_id'])) {

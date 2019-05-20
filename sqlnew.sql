@@ -1,5 +1,5 @@
 # Add companies
-CREATE TABLE `pm`.`companies` (
+CREATE TABLE `companies` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NULL,
   `address` VARCHAR(255) NULL,
@@ -9,7 +9,7 @@ CREATE TABLE `pm`.`companies` (
   PRIMARY KEY (`id`));
 
 # Add projects
-CREATE TABLE `pm`.`projects` (
+CREATE TABLE `projects` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `company_id` INT NULL,
   `name` VARCHAR(255) NULL,
@@ -20,7 +20,7 @@ CREATE TABLE `pm`.`projects` (
   PRIMARY KEY (`id`));
 
 # Add admin_projects
-CREATE TABLE `pm`.`admin_projects` (
+CREATE TABLE `admin_projects` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `admin_id` INT NULL,
   `company_id` INT NULL,
@@ -29,4 +29,10 @@ CREATE TABLE `pm`.`admin_projects` (
   `created` INT NULL,
   `updated` INT NULL,
   PRIMARY KEY (`id`));
+
+# Add orders.project_id
+ALTER TABLE `orders` 
+ADD COLUMN `project_id` INT NULL DEFAULT 0;
+
+
 
