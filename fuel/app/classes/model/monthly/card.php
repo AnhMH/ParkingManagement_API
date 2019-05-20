@@ -30,7 +30,8 @@ class Model_Monthly_Card extends Model_Abstract {
         'created',
         'updated',
         'disable',
-        'admin_id'
+        'admin_id',
+        'company_id'
     );
 
     protected static $_observers = array(
@@ -83,6 +84,9 @@ class Model_Monthly_Card extends Model_Abstract {
         }
         if (isset($param['disable'])) {
             $query->where(self::$_table_name . '.disable', '=', $param['disable']);
+        }
+        if (!empty($param['company_id'])) {
+            $query->where(self::$_table_name . '.company_id', $param['company_id']);
         }
         if (!empty($param['is_expired'])) {
             if ($param['is_expired'] == 1) {
@@ -258,6 +262,9 @@ class Model_Monthly_Card extends Model_Abstract {
         if (!empty($cardId)) {
             $self->set('card_id', $cardId);
         }
+        if (!empty($param['company_id'])) {
+            $self->set('company_id', $param['company_id']);
+        }
         if (!empty($param['car_number'])) {
             $self->set('car_number', $param['car_number']);
         }
@@ -294,6 +301,7 @@ class Model_Monthly_Card extends Model_Abstract {
         if (!empty($adminId)) {
             $self->set('admin_id', $adminId);
         }
+        
         
         // Save data
         if ($self->save()) {

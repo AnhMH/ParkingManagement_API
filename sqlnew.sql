@@ -34,5 +34,20 @@ CREATE TABLE `admin_projects` (
 ALTER TABLE `orders` 
 ADD COLUMN `project_id` INT NULL DEFAULT 0;
 
+# Add settings.project_id
+ALTER TABLE `settings` 
+ADD COLUMN `project_id` INT NULL DEFAULT 0,
+DROP INDEX `keys_unique` ,
+ADD UNIQUE INDEX `keys_unique` (`name` ASC, `admin_type` ASC, `type` ASC, `vehicle_id` ASC, `project_id` ASC);
 
+# Add cards.company_id
+ALTER TABLE `cards` 
+ADD COLUMN `company_id` INT NULL DEFAULT 0;
 
+# Add monthly_cards.company_id
+ALTER TABLE `monthly_cards`
+ADD COLUMN `company_id` INT NULL DEFAULT 0;
+
+# Add vehicles.company_id
+ALTER TABLE `vehicles` 
+ADD COLUMN `company_id` INT NULL DEFAULT 0;

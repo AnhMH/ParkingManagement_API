@@ -20,7 +20,8 @@ class Model_Vehicle extends Model_Abstract {
         'monthly_cost',
         'limit',
         'type',
-        'card_type'
+        'card_type',
+        'company_id'
     );
 
     protected static $_observers = array(
@@ -57,10 +58,13 @@ class Model_Vehicle extends Model_Abstract {
             $query->where(self::$_table_name . '.name', 'LIKE', "%{$param['name']}%");
         }
         if (!empty($param['card_type'])) {
-            $query->where(self::$_table_name . '.card_type',$param['card_type']);
+            $query->where(self::$_table_name . '.card_type', $param['card_type']);
         }
         if (!empty($param['type'])) {
-            $query->where(self::$_table_name . '.type',$param['type']);
+            $query->where(self::$_table_name . '.type', $param['type']);
+        }
+        if (!empty($param['company_id'])) {
+            $query->where(self::$_table_name . '.company_id', $param['company_id']);
         }
 
         // Pagination
@@ -195,6 +199,9 @@ class Model_Vehicle extends Model_Abstract {
         }
         if (!empty($param['code'])) {
             $self->set('code', $param['code']);
+        }
+        if (!empty($param['company_id'])) {
+            $self->set('company_id', $param['company_id']);
         }
         if (!empty($param['monthly_cost'])) {
             $self->set('monthly_cost', $param['monthly_cost']);

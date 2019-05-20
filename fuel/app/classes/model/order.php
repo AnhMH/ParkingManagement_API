@@ -46,7 +46,8 @@ class Model_Order extends Model_Abstract {
         'image_out_1',
         'image_out_2',
         'car_number_in',
-        'car_number_out'
+        'car_number_out',
+        'project_id'
     );
 
     protected static $_observers = array(
@@ -92,6 +93,9 @@ class Model_Order extends Model_Abstract {
         // Set data
         if (!empty($param['card_id'])) {
             $self->set('card_id', $param['card_id']);
+        }
+        if (!empty($param['project_id'])) {
+            $self->set('project_id', $param['project_id']);
         }
         if (!empty($param['card_code'])) {
             $self->set('card_code', $param['card_code']);
@@ -369,6 +373,9 @@ class Model_Order extends Model_Abstract {
         if (!empty($param['card_code'])) {
             $query->where(self::$_table_name . '.card_code', 'LIKE', "%{$param['card_code']}%");
         }
+        if (!empty($param['project_id'])) {
+            $query->where(self::$_table_name . '.project_id', $param['project_id']);
+        }
         if (!empty($param['car_number'])) {
             $query->where(self::$_table_name . '.car_number', 'LIKE', "%{$param['car_number']}%");
         }
@@ -630,7 +637,8 @@ class Model_Order extends Model_Abstract {
                         'car_number_in' => isset($val['car_number_in']) ? $val['car_number_in'] : '',
                         'admin_checkout_id' => isset($val['admin_checkout_id']) ? $val['admin_checkout_id'] : '',
                         'admin_checkout_name' => isset($val['admin_checkout_name']) ? $val['admin_checkout_name'] : '',
-                        'car_number_out' => isset($val['car_number_out']) ? $val['car_number_out'] : ''
+                        'car_number_out' => isset($val['car_number_out']) ? $val['car_number_out'] : '',
+                        'project_id' => isset($val['project_id']) ? $val['project_id'] : 0
                     );
                 }
             }
@@ -662,6 +670,7 @@ class Model_Order extends Model_Abstract {
                     'admin_checkout_id' => DB::expr('VALUES(admin_checkout_id)'),
                     'admin_checkout_name' => DB::expr('VALUES(admin_checkout_name)'),
                     'car_number_out' => DB::expr('VALUES(car_number_out)'),
+                    'project_id' => DB::expr('VALUES(project_id)'),
                 ));
                 return true;
             }

@@ -19,7 +19,8 @@ class Model_Setting extends Model_Abstract {
         'value',
         'admin_type',
         'type', // 1: permission, 2: display setting, 3,4,5:priceformula
-        'vehicle_id'
+        'vehicle_id',
+        'project_id'
     );
 
     protected static $_observers = array(
@@ -50,6 +51,7 @@ class Model_Setting extends Model_Abstract {
         $type = !empty($param['type']) ? $param['type'] : '';
         $vehicleId = !empty($param['vehicle_id']) ? $param['vehicle_id'] : '';
         $adminId = !empty($param['admin_id']) ? $param['admin_id'] : '';
+        $projectId = !empty($param['project_id']) ? $param['project_id'] : '';
         if (!empty($data)) {
             $addUpdateData = array();
             foreach ($data as $k => $v) {
@@ -58,7 +60,8 @@ class Model_Setting extends Model_Abstract {
                     'value' => $v,
                     'admin_type' => $adminType,
                     'type' => $type,
-                    'vehicle_id' => $vehicleId
+                    'vehicle_id' => $vehicleId,
+                    'project_id' => $projectId
                 );
             }
             if (!empty($addUpdateData)) {
@@ -68,7 +71,8 @@ class Model_Setting extends Model_Abstract {
                     'value' => DB::expr('VALUES(value)'),
                     'admin_type' => DB::expr('VALUES(admin_type)'),
                     'type' => DB::expr('VALUES(type)'),
-                    'vehicle_id' => DB::expr('VALUES(vehicle_id)')
+                    'vehicle_id' => DB::expr('VALUES(vehicle_id)'),
+                    'project_id' => DB::expr('VALUES(project_id)')
                 ));
                 $logType = '';
                 if ($type == \Config::get('setting_type')['price_formula1']) {
@@ -125,6 +129,9 @@ class Model_Setting extends Model_Abstract {
         }
         if (!empty($param['vehicle_id'])) {
             $query->where(self::$_table_name . '.vehicle_id', $param['vehicle_id']);
+        }
+        if (!empty($param['project_id'])) {
+            $query->where(self::$_table_name . '.project_id', $param['project_id']);
         }
 
         // Get data

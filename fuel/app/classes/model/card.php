@@ -22,7 +22,8 @@ class Model_Card extends Model_Abstract {
         'created',
         'updated',
         'disable',
-        'admin_id'
+        'admin_id',
+        'company_id'
     );
 
     protected static $_observers = array(
@@ -69,6 +70,9 @@ class Model_Card extends Model_Abstract {
         }
         if (isset($param['disable'])) {
             $query->where(self::$_table_name . '.disable', '=', $param['disable']);
+        }
+        if (!empty($param['company_id'])) {
+            $query->where(self::$_table_name . '.company_id', $param['company_id']);
         }
 
         // Pagination
@@ -130,6 +134,9 @@ class Model_Card extends Model_Abstract {
         // Filter
         if (!empty($param['name'])) {
             $query->where(self::$_table_name . '.name', 'LIKE', "%{$param['name']}%");
+        }
+        if (!empty($param['company_id'])) {
+            $query->where(self::$_table_name . '.company_id', $param['company_id']);
         }
 
         // Pagination
@@ -216,6 +223,9 @@ class Model_Card extends Model_Abstract {
         }
         if (isset($param['admin_id'])) {
             $self->set('admin_id', $param['admin_id']);
+        }
+        if (!empty($param['company_id'])) {
+            $self->set('company_id', $param['company_id']);
         }
         
         // Save data
