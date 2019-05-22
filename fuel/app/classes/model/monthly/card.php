@@ -342,6 +342,14 @@ class Model_Monthly_Card extends Model_Abstract {
                 'type' => !empty($new) ? static::LOG_TYPE_MONTHLYCARD_CREATE : static::LOG_TYPE_MONTHLYCARD_UPDATE
             );
             Model_System_Log::add_update($logParam);
+            
+            // Sync data
+            Model_Sync::sync_data(array(
+                'monthly_card_id' => $self->id,
+                'type' => !empty($new) ? 1 : 0,
+                'company_id' => !empty($param['company_id']) ? $param['company_id'] : 0
+            ));
+            
             return $self->id;
         }
         
@@ -438,8 +446,15 @@ class Model_Monthly_Card extends Model_Abstract {
             }
             $cond .= "code IN ({$param['code']})";
         }
-        
         $sql = "UPDATE {$table} SET disable = {$disable} WHERE {$cond}";
+        
+        // Sync data
+        Model_Sync::sync_data(array(
+            'monthly_card_id' => $param['id'],
+            'type' => 2,
+            'company_id' => !empty($param['company_id']) ? $param['company_id'] : 0
+        ));
+        
         return DB::query($sql)->execute();
     }
     /*

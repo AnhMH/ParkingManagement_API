@@ -65,7 +65,10 @@ class Model_Admin_Project extends Model_Abstract {
 
         // Filter
         if (!empty($param['admin_id'])) {
-            $query->where(self::$_table_name . '.admin_id', $param['admin_id']);
+            if (!is_array($param['admin_id'])) {
+                $param['admin_id'] = explode(',', $param['admin_id']);
+            }
+            $query->where(self::$_table_name . '.admin_id', 'IN', $param['admin_id']);
         }
 
         // Pagination

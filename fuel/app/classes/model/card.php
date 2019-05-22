@@ -243,6 +243,14 @@ class Model_Card extends Model_Abstract {
                 'type' => !empty($new) ? static::LOG_TYPE_CARD_CREATE : static::LOG_TYPE_CARD_UPDATE
             );
             Model_System_Log::add_update($logParam);
+            
+            // Sync data
+            Model_Sync::sync_data(array(
+                'card_id' => $self->id,
+                'type' => !empty($new) ? 1 : 0,
+                'company_id' => !empty($param['company_id']) ? $param['company_id'] : 0
+            ));
+            
             return $self->id;
         }
         
@@ -319,6 +327,12 @@ class Model_Card extends Model_Abstract {
         }
         
         $sql = "UPDATE {$table} SET disable = {$disable} WHERE {$cond}";
+        // Sync data
+        Model_Sync::sync_data(array(
+            'card_id' => $param['id'],
+            'type' => 2,
+            'company_id' => !empty($param['company_id']) ? $param['company_id'] : 0
+        ));
         return DB::query($sql)->execute();
     }
     /*

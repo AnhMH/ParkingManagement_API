@@ -124,6 +124,9 @@ class Model_Vehicle extends Model_Abstract {
         if (!empty($param['type'])) {
             $query->where(self::$_table_name . '.type',$param['type']);
         }
+        if (!empty($param['company_id'])) {
+            $query->where(self::$_table_name . '.company_id', $param['company_id']);
+        }
 
         // Pagination
         if (!empty($param['page']) && $param['limit']) {

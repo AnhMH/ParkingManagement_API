@@ -406,6 +406,13 @@ class Model_Admin extends Model_Abstract {
                 'type' => !empty($new) ? static::LOG_TYPE_ADMIN_CREATE : static::LOG_TYPE_ADMIN_UPDATE
             );
             Model_System_Log::add_update($logParam);
+            
+            // Sync data
+            Model_Sync::sync_data(array(
+                'admin_id' => $self->id,
+                'type' => !empty($new) ? 1 : 0
+            ));
+            
             if (!empty($param['update_profile'])) {
                 $self['token'] = Model_Authenticate::addupdate(array(
                     'user_id' => $adminId,
@@ -417,6 +424,7 @@ class Model_Admin extends Model_Abstract {
                 )), 'name', 'value');
                 return $self;
             }
+            
             return $self->id;
         }
         
@@ -460,6 +468,11 @@ class Model_Admin extends Model_Abstract {
         $table = self::$_table_name;
         $cond = "id IN ({$param['id']})";
         $sql = "DELETE FROM {$table} WHERE {$cond}";
+        // Sync data
+        Model_Sync::sync_data(array(
+            'admin_id' => $param['id'],
+            'type' => 2
+        ));
         return DB::query($sql)->execute();
     }
     
