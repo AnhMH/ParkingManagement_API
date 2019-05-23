@@ -173,4 +173,47 @@ class Model_Sync extends Model_Abstract {
         // Return
         return false;
     }
+    
+    /**
+     * Get all
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return array|bool Detail Order or false if error
+     */
+    public static function get_all($param) {
+        // Query
+        $query = DB::select(
+                        self::$_table_name . '.*'
+                )
+                ->from(self::$_table_name)
+        ;
+
+        // Filter
+        if (!empty($param['project_id'])) {
+            $query->where(self::$_table_name . '.project_id', $param['project_id']);
+        }
+        
+        // Sort
+        $query->order_by(self::$_table_name . '.id', 'ASC');
+
+        // Get data
+        $data = $query->execute()->as_array();
+        return $data;
+    }
+    
+    /**
+     * Disable
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return Int|bool
+     */
+    public static function disable($param)
+    {
+        $table = self::$_table_name;
+        $cond = "id IN ({$param['id']})";
+        $sql = "DELETE FROM {$table} WHERE {$cond}";
+        return DB::query($sql)->execute();
+    }
 }

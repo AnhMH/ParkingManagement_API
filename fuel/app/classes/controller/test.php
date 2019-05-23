@@ -15,7 +15,7 @@ class Controller_Test extends \Controller_App {
      * @return  Response
      */
     public function action_index() {
-        echo phpinfo();
+//        echo phpinfo();
         die();
     }
 
