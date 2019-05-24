@@ -54,14 +54,15 @@ ADD COLUMN `company_id` INT NULL DEFAULT 0;
 
 # Add sync
 CREATE TABLE `sync` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `project_id` INT NULL DEFAULT 0,
-  `company_id` INT NULL DEFAULT 0,
-  `admin_id` INT NULL DEFAULT 0,
-  `card_id` INT NULL DEFAULT 0,
-  `monthly_card_id` INT NULL,
-  `type` TINYINT(1) NULL DEFAULT 0 COMMENT '0: Edit\n1: Add new\n2: Delete',
-  PRIMARY KEY (`id`));
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `project_id` INT NULL DEFAULT 0,
+    `company_id` INT NULL DEFAULT 0,
+    `admin_id` INT NULL DEFAULT 0,
+    `card_id` INT NULL DEFAULT 0,
+    `vehicle_id` INT NULL DEFAULT 0,
+    `monthly_card_id` INT NULL,
+    `type` TINYINT(1) NULL DEFAULT 0 COMMENT '0: Edit\n1: Add new\n2: Delete',
+    PRIMARY KEY (`id`));
 
 ALTER TABLE `sync` 
-ADD UNIQUE INDEX `monthly_card_id_UNIQUE` (`monthly_card_id` ASC, `project_id` ASC, `admin_id` ASC, `card_id` ASC, `type` ASC, `company_id` ASC);
+ADD UNIQUE INDEX `monthly_card_id_UNIQUE` (`monthly_card_id` ASC, `project_id` ASC, `admin_id` ASC, `card_id` ASC, `type` ASC, `company_id` ASC, `vehilce_id` ASC);

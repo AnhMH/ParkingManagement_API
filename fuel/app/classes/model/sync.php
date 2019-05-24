@@ -20,6 +20,7 @@ class Model_Sync extends Model_Abstract {
         'user_id',
         'card_id',
         'monthly_card_id',
+        'vehicle_id',
         'type', //0: Edit, 1: Add new, 2: Delete
     );
 
@@ -80,6 +81,9 @@ class Model_Sync extends Model_Abstract {
         if (!empty($param['monthly_card_id'])) {
             $self->set('monthly_card_id', $param['monthly_card_id']);
         }
+        if (!empty($param['vehicle_id'])) {
+            $self->set('vehicle_id', $param['vehicle_id']);
+        }
         if (isset($param['type'])) {
             $self->set('type', $param['type']);
         }
@@ -105,7 +109,7 @@ class Model_Sync extends Model_Abstract {
     public static function sync_data($param)
     {
         // Check
-        if (empty($param['admin_id']) && empty($param['card_id']) && empty($param['monthly_card_id'])) {
+        if (empty($param['admin_id']) && empty($param['card_id']) && empty($param['monthly_card_id']) && empty($param['vehicle_id'])) {
             return false;
         }
         
@@ -139,6 +143,9 @@ class Model_Sync extends Model_Abstract {
                 if (!empty($param['monthly_card_id']) && !is_array($param['monthly_card_id'])) {
                     $param['monthly_card_id'] = explode(',', $param['monthly_card_id']);
                 }
+                if (!empty($param['vehicle_id']) && !is_array($param['vehicle_id'])) {
+                    $param['vehicle_id'] = explode(',', $param['vehicle_id']);
+                }
                 foreach ($projects as $val) {
                     if (!empty($param['card_id'])) {
                         foreach ($param['card_id'] as $c) {
@@ -154,6 +161,16 @@ class Model_Sync extends Model_Abstract {
                         foreach ($param['monthly_card_id'] as $mc) {
                             $syncData[] = array(
                                 'monthly_card_id' => $mc,
+                                'project_id' => $val['id'],
+                                'company_id' => $val['company_id'],
+                                'type' => $param['type']
+                            );
+                        }
+                    }
+                    if (!empty($param['vehicle_id'])) {
+                        foreach ($param['vehicle_id'] as $v) {
+                            $syncData[] = array(
+                                'vehicle_id' => $v,
                                 'project_id' => $val['id'],
                                 'company_id' => $val['company_id'],
                                 'type' => $param['type']

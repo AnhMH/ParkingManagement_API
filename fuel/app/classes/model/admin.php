@@ -495,6 +495,12 @@ class Model_Admin extends Model_Abstract {
         if (!empty($param['name'])) {
             $query->where(self::$_table_name . '.name', 'LIKE', "%{$param['name']}%");
         }
+        if (!empty($param['id'])) {
+            if (!is_array($param['id'])) {
+                $param['id'] = explode(',', $param['id']);
+            }
+            $query->where(self::$_table_name . '.name', 'IN', $param['id']);
+        }
 
         // Pagination
         if (!empty($param['page']) && $param['limit']) {

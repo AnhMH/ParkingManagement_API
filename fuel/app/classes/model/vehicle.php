@@ -127,6 +127,12 @@ class Model_Vehicle extends Model_Abstract {
         if (!empty($param['company_id'])) {
             $query->where(self::$_table_name . '.company_id', $param['company_id']);
         }
+        if (!empty($param['id'])) {
+            if (!is_array($param['id'])) {
+                $param['id'] = explode(',', $param['id']);
+            }
+            $query->where(self::$_table_name . '.name', 'IN', $param['id']);
+        }
 
         // Pagination
         if (!empty($param['page']) && $param['limit']) {
@@ -224,6 +230,14 @@ class Model_Vehicle extends Model_Abstract {
             if (empty($self->id)) {
                 $self->id = self::cached_object($self)->_original['id'];
             }
+            
+            // Sync data
+            Model_Sync::sync_data(array(
+                'vehicle_id' => $self->id,
+                'type' => !empty($new) ? 1 : 0,
+                'company_id' => !empty($param['company_id']) ? $param['company_id'] : 0
+            ));
+            
             return $self->id;
         }
         
@@ -289,6 +303,13 @@ class Model_Vehicle extends Model_Abstract {
         $table = self::$_table_name;
         $cond = "id IN ({$param['id']})";
         $sql = "DELETE FROM {$table} WHERE {$cond}";
+        
+        // Sync data
+        Model_Sync::sync_data(array(
+            'vehicle_id' => $param['id'],
+            'type' => 2,
+            'company_id' => !empty($param['company_id']) ? $param['company_id'] : 0
+        ));
         return DB::query($sql)->execute();
     }
 }
