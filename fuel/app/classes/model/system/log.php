@@ -22,7 +22,8 @@ class Model_System_Log extends Model_Abstract {
         'logout_time',
         'created',
         'type',
-        'vehicle_id'
+        'vehicle_id',
+        'company_id'
     );
 
     protected static $_observers = array(
@@ -95,6 +96,9 @@ class Model_System_Log extends Model_Abstract {
         }
         if (!empty($param['vehicle_id'])) {
             $query->where(self::$_table_name . '.vehicle_id', $param['vehicle_id']);
+        }
+        if (!empty($param['company_id'])) {
+            $query->where(self::$_table_name . '.company_id', $param['company_id']);
         }
 
         // Pagination
@@ -175,6 +179,9 @@ class Model_System_Log extends Model_Abstract {
         }
         if (!empty($param['vehicle_id'])) {
             $self->set('vehicle_id', $param['vehicle_id']);
+        }
+        if (!empty($param['company_id'])) {
+            $self->set('company_id', $param['company_id']);
         }
         
         // Save data

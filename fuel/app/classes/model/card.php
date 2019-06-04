@@ -105,7 +105,8 @@ class Model_Card extends Model_Abstract {
             $logParam = array(
                 'detail' => 'Export thẻ',
                 'admin_id' => $adminId,
-                'type' => static::LOG_TYPE_CARD_EXPORT
+                'type' => static::LOG_TYPE_CARD_EXPORT,
+                'company_id' => !empty($param['company_id']) ? $param['company_id'] : 0
             );
             Model_System_Log::add_update($logParam);
         }
@@ -246,7 +247,8 @@ class Model_Card extends Model_Abstract {
             $logParam = array(
                 'detail' => json_encode($logData),
                 'admin_id' => $adminId,
-                'type' => !empty($new) ? static::LOG_TYPE_CARD_CREATE : static::LOG_TYPE_CARD_UPDATE
+                'type' => !empty($new) ? static::LOG_TYPE_CARD_CREATE : static::LOG_TYPE_CARD_UPDATE,
+                'company_id' => !empty($param['company_id']) ? $param['company_id'] : 0
             );
             Model_System_Log::add_update($logParam);
             
@@ -426,7 +428,8 @@ class Model_Card extends Model_Abstract {
         $logParam = array(
             'detail' => 'Import thẻ',
             'admin_id' => $adminId,
-            'type' => static::LOG_TYPE_CARD_IMPORT
+            'type' => static::LOG_TYPE_CARD_IMPORT,
+            'company_id' => !empty($param['company_id']) ? $param['company_id'] : 0
         );
         Model_System_Log::add_update($logParam);
         return $results;

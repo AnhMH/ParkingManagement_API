@@ -92,7 +92,8 @@ class Model_Setting extends Model_Abstract {
                     $logParam = array(
                         'detail' => json_encode($logData),
                         'admin_id' => $adminId,
-                        'type' => $logType
+                        'type' => $logType,
+                        'company_id' => !empty($param['company_id']) ? $param['company_id'] : 0
                     );
                     Model_System_Log::add_update($logParam);
                 }

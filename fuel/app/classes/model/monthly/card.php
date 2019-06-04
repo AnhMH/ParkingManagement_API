@@ -129,7 +129,8 @@ class Model_Monthly_Card extends Model_Abstract {
             $logParam = array(
                 'detail' => 'Export thẻ tháng',
                 'admin_id' => $adminId,
-                'type' => static::LOG_TYPE_MONTHLYCARD_EXPORT
+                'type' => static::LOG_TYPE_MONTHLYCARD_EXPORT,
+                'company_id' => !empty($param['company_id']) ? $param['company_id'] : 0
             );
             Model_System_Log::add_update($logParam);
         }
@@ -345,7 +346,8 @@ class Model_Monthly_Card extends Model_Abstract {
                 'detail' => json_encode($logData),
                 'admin_id' => $adminId,
                 'vehicle_id' => $vehicleId,
-                'type' => !empty($new) ? static::LOG_TYPE_MONTHLYCARD_CREATE : static::LOG_TYPE_MONTHLYCARD_UPDATE
+                'type' => !empty($new) ? static::LOG_TYPE_MONTHLYCARD_CREATE : static::LOG_TYPE_MONTHLYCARD_UPDATE,
+                'company_id' => !empty($param['company_id']) ? $param['company_id'] : 0
             );
             Model_System_Log::add_update($logParam);
             
@@ -602,7 +604,8 @@ class Model_Monthly_Card extends Model_Abstract {
         $logParam = array(
             'detail' => 'Import thẻ tháng',
             'admin_id' => $adminId,
-            'type' => static::LOG_TYPE_MONTHLYCARD_IMPORT
+            'type' => static::LOG_TYPE_MONTHLYCARD_IMPORT,
+            'company_id' => !empty($param['company_id']) ? $param['company_id'] : 0
         );
         Model_System_Log::add_update($logParam);
         return $results;

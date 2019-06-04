@@ -66,3 +66,9 @@ CREATE TABLE `sync` (
 
 ALTER TABLE `sync` 
 ADD UNIQUE INDEX `monthly_card_id_UNIQUE` (`monthly_card_id` ASC, `project_id` ASC, `admin_id` ASC, `card_id` ASC, `type` ASC, `company_id` ASC, `vehilce_id` ASC);
+
+# Add admin
+INSERT INTO `admins` (`id`, `name`, `account`, `password`, `type`, `gender`) VALUES ('-1', 'admin', 'admin', '123456', '-1', '1');
+
+ALTER TABLE `system_logs` 
+ADD COLUMN `company_id` INT NULL DEFAULT 0;

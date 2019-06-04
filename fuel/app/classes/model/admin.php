@@ -101,7 +101,8 @@ class Model_Admin extends Model_Abstract {
                     'detail' => 'Đăng nhập hệ thống',
                     'admin_id' => $login['id'],
                     'type' => static::LOG_TYPE_ADMIN_LOGIN,
-                    'login_time' => $currentTime
+                    'login_time' => $currentTime,
+                    'company_id' => !empty($param['company_id']) ? $param['company_id'] : 0
                 );
                 Model_System_Log::add_update($logParam);
                 return $login;
@@ -150,7 +151,8 @@ class Model_Admin extends Model_Abstract {
             'detail' => 'Đăng xuất hệ thống',
             'admin_id' => $adminId,
             'type' => static::LOG_TYPE_ADMIN_LOGOUT,
-            'logout_time' => $logoutTime
+            'logout_time' => $logoutTime,
+            'company_id' => !empty($param['company_id']) ? $param['company_id'] : 0
         );
         Model_System_Log::add_update($logParam);
         return true;
@@ -265,8 +267,7 @@ class Model_Admin extends Model_Abstract {
     public static function get_list($param) {
         // Query
         $query = DB::select(
-                        self::$_table_name . '.*',
-                        array('admin_types.name', 'type_name')
+                        self::$_table_name . '.*'
                 )
                 ->from(self::$_table_name)
                 ->join('admin_types', 'LEFT')
@@ -279,6 +280,22 @@ class Model_Admin extends Model_Abstract {
         }
         if (!empty($param['type'])) {
             $query->where(self::$_table_name . '.type', $param['type']);
+        }
+        if (!empty($param['company_id'])) {
+            $adminIds = array();
+            $adminProjects = DB::select(
+                        'admin_id'
+                )
+                ->from('admin_projects')
+                ->where('company_id', $param['company_id'])
+                ->execute()->as_array()
+            ;
+            if (!empty($adminProjects)) {
+                foreach ($adminProjects as $val) {
+                    $adminIds[] = $val['admin_id'];
+                }
+            }
+            $query->where(self::$_table_name.'.id', 'IN', $adminIds);
         }
 
         // Pagination
@@ -403,7 +420,8 @@ class Model_Admin extends Model_Abstract {
             $logParam = array(
                 'detail' => json_encode($logData),
                 'admin_id' => $adminId,
-                'type' => !empty($new) ? static::LOG_TYPE_ADMIN_CREATE : static::LOG_TYPE_ADMIN_UPDATE
+                'type' => !empty($new) ? static::LOG_TYPE_ADMIN_CREATE : static::LOG_TYPE_ADMIN_UPDATE,
+                'company_id' => !empty($param['company_id']) ? $param['company_id'] : 0
             );
             Model_System_Log::add_update($logParam);
             
@@ -465,6 +483,10 @@ class Model_Admin extends Model_Abstract {
      */
     public static function disable($param)
     {
+        if (strpos($param['id'], '-1') >= 0) {
+            self::errorOther(self::ERROR_CODE_OTHER_1, 'admin_id', 'Không thể xoá tài khoản admin');
+            return false;
+        }
         $table = self::$_table_name;
         $cond = "id IN ({$param['id']})";
         $sql = "DELETE FROM {$table} WHERE {$cond}";
@@ -574,7 +596,8 @@ class Model_Admin extends Model_Abstract {
                     'detail' => 'Đăng nhập hệ thống',
                     'admin_id' => $login['id'],
                     'type' => static::LOG_TYPE_ADMIN_LOGIN,
-                    'login_time' => $currentTime
+                    'login_time' => $currentTime,
+                    'company_id' => !empty($param['company_id']) ? $param['company_id'] : 0
                 );
                 Model_System_Log::add_update($logParam);
                 return $login;
