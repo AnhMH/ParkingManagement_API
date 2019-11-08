@@ -625,7 +625,9 @@ class Model_Admin extends Model_Abstract {
         $data['admin_type'] = Model_Admin_Type::get_all(array());
         
         // Get companies
-        $data['companies'] = Model_Company::get_all(array());
+        $data['companies'] = Model_Company::get_all(array(
+            'ids' => !empty($param['company_ids']) ? $param['company_ids'] : ''
+        ));
         
         // Get projects
         $data['projects'] = Model_Project::get_all(array());

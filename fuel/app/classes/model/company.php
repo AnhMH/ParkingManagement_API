@@ -55,6 +55,12 @@ class Model_Company extends Model_Abstract {
         if (!empty($param['name'])) {
             $query->where(self::$_table_name . '.name', 'LIKE', "%{$param['name']}%");
         }
+        if (!empty($param['ids'])) {
+            if (!is_array($param['ids'])) {
+                $param['ids'] = explode(',', $param['ids']);
+            }
+            $query->where(self::$_table_name . '.id', 'IN', $param['ids']);
+        }
 
         // Pagination
         if (!empty($param['page']) && $param['limit']) {
@@ -106,6 +112,13 @@ class Model_Company extends Model_Abstract {
         // Filter
         if (!empty($param['name'])) {
             $query->where(self::$_table_name . '.name', 'LIKE', "%{$param['name']}%");
+        }
+        
+        if (isset($param['ids'])) {
+            if (!is_array($param['ids'])) {
+                $param['ids'] = explode(',', $param['ids']);
+            }
+            $query->where(self::$_table_name . '.id', 'IN', $param['ids']);
         }
 
         // Pagination
